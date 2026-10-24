@@ -1,10 +1,10 @@
 {
   "extraKnownMarketplaces": {
-    "pudin-skills": {
-      "source": { "source": "git", "url": "https://<호스트>/<그룹>/pudin-skills.git" }
+    "super-dev-skills": {
+      "source": { "source": "github", "repo": "binnini/super-dev-skills" }
     }
   },
   "enabledPlugins": {
-    "assets@pudin-skills": true
+    "assets@super-dev-skills": true
   }
 }

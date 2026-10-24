@@ -1,5 +1,5 @@
 {
-  "name": "pudin-skills",
+  "name": "super-dev-skills",
   "description": "게임 개발용 Claude Code 스킬 · 훅 모음(리소스 찾기, 영상 측정, 병목 리포트, 에디터 잠금)",
   "owner": { "name": "pudin" },
   "plugins": [
