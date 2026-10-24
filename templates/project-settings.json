@@ -1,0 +1,10 @@
+{
+  "extraKnownMarketplaces": {
+    "pudin-skills": {
+      "source": { "source": "git", "url": "https://<호스트>/<그룹>/pudin-skills.git" }
+    }
+  },
+  "enabledPlugins": {
+    "assets@pudin-skills": true
+  }
+}

@@ -1,0 +1,5 @@
+# 이 저장소는 Git LFS를 쓰지 않는다. 플러그인을 받을 때 LFS 파일은 포인터만 오기 때문이다.
+* text=auto eol=lf
+*.png binary
+*.gif binary
+*.ps1 text eol=crlf

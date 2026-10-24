@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>소리 후보</title>
+<style>
+:root {
+  --bg: #f6f5f2; --card: #fff; --ink: #1d1d1b; --sub: #6b6a66; --line: #e2e0da; --chip: #efede7;
+  --accent: #d9a400; --img: #1b1b22; --wave: #8f8c84; --wave-on: #d9a400;
+  --cc0-bg: #dcefe0; --cc0-ink: #1f6b35; --by-bg: #dfe9fb; --by-ink: #1d4f9c; --nc-bg: #fbe9e4; --nc-ink: #9c3a1d; --px-bg: #efe6fb; --px-ink: #5b2d9c;
+  --pick-bg: #fff4d1;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #141417; --card: #1e1e23; --ink: #ecebe6; --sub: #9a988f; --line: #2e2e35; --chip: #2a2a30; --accent: #ffd23f; --img: #0c0c10; --wave: #5a5a62; --wave-on: #ffd23f;
+    --cc0-bg: #1d3a26; --cc0-ink: #8fdca4; --by-bg: #1c2d4a; --by-ink: #9cc2ff; --nc-bg: #3d241c; --nc-ink: #ffb59c; --px-bg: #2e2140; --px-ink: #cfaeff; --pick-bg: #3a3214; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.45 "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif; }
+header { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); padding: 14px 16px 12px; }
+h1 { margin: 0 0 4px; font-size: 18px; }
+.lead { margin: 0 0 10px; color: var(--sub); font-size: 13px; max-width: 960px; }
+.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.bar button { border: 1px solid var(--line); background: var(--card); color: var(--ink); padding: 5px 11px; border-radius: 999px; cursor: pointer; font: inherit; font-size: 13px; }
+.bar button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+label.knob { display: flex; align-items: center; gap: 6px; color: var(--sub); font-size: 13px; }
+label.knob b { color: var(--ink); font-weight: 600; min-width: 44px; }
+.choice { margin: 8px 0 0; padding: 8px 12px; border-radius: 10px; background: var(--pick-bg); font-size: 13px; display: none; }
+.choice.on { display: block; }
+.picked { margin: 8px 0 0; font-size: 13px; color: var(--sub); }
+.picked b { color: var(--ink); }
+main { padding: 12px 16px 40px; max-width: 1280px; margin: 0 auto; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+.card.star { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.card.chosen { box-shadow: 0 0 0 3px var(--accent); }
+.card.playing { outline: 2px solid var(--accent); }
+canvas.wave { width: 100%; height: 56px; display: block; background: var(--img); }
+.body { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.top { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
+.title { font-weight: 600; word-break: break-word; }
+.meta, .stats { font-size: 12px; color: var(--sub); }
+.stats b { color: var(--ink); font-weight: 600; }
+.badges { display: flex; gap: 4px; flex-wrap: wrap; }
+.badge { font-size: 11px; border-radius: 5px; padding: 0 6px; white-space: nowrap; background: var(--chip); color: var(--sub); }
+.badge.cc0 { background: var(--cc0-bg); color: var(--cc0-ink); }
+.badge.by { background: var(--by-bg); color: var(--by-ink); }
+.badge.nc, .badge.warn { background: var(--nc-bg); color: var(--nc-ink); }
+.badge.px { background: var(--px-bg); color: var(--px-ink); }
+.btns { display: flex; gap: 6px; flex-wrap: wrap; margin-top: auto; }
+.btns button { border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 3px 10px; font: inherit; font-size: 12px; cursor: pointer; }
+.btns button.on { background: var(--accent); color: #000; border-color: var(--accent); }
+.btns button.decide { margin-left: auto; }
+.card.chosen .btns button.decide { background: var(--accent); color: #000; border-color: var(--accent); }
+.starbtn { border: none; background: none; font-size: 18px; cursor: pointer; color: var(--sub); line-height: 1; padding: 0; }
+.card.star .starbtn { color: var(--accent); }
+a { color: inherit; }
+footer { color: var(--sub); font-size: 12px; padding: 0 16px 30px; max-width: 1280px; margin: 0 auto; }
+@media (max-width: 520px) { .grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <h1 id="h1"></h1>
+  <p class="lead" id="lead"></p>
+  <div class="bar" id="bar">
+    <button data-f="all" aria-pressed="true">전체</button>
+    <button data-f="free" aria-pressed="false">출처 표기 없이 쓸 수 있는 것</button>
+    <button data-f="short" aria-pressed="false">1초 이하</button>
+    <button data-f="star" aria-pressed="false">☆ 고른 것</button>
+    <span id="knobs" style="display:contents"></span>
+    <label class="knob">볼륨 <input type="range" id="vol" min="0" max="1" step="0.05" value="0.8"></label>
+  </div>
+  <p class="picked" id="picked"></p>
+  <p class="choice" id="choice"></p>
+</header>
+<main><div class="grid" id="grid"></div></main>
+<footer id="foot"></footer>
+<script>
+// 소리 후보 비교 페이지(웹 소리 찾기 스킬, .claude/skills/web-sound-search). 데이터는 build_page.py가 넣는다
+const CFG = /*CONFIG*/null;
+const DATA = CFG.candidates;
+const $ = id => document.getElementById(id);
+const KEY_STARS = CFG.key + '_stars', KEY_CHOICE = CFG.key + '_choice';
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+};
+let stars = new Set(store.get(KEY_STARS, []));
+let choice = store.get(KEY_CHOICE, null);
+let filter = 'all', live = [], timers = [], activeBtn = null;
+const stats = {}; // key → {onset, peak, len, peaks[]}
+
+$('h1').textContent = CFG.title;
+document.title = CFG.title;
+$('lead').innerHTML = CFG.purpose + ` <span style="opacity:.8">(검색 ${CFG.searched}: ${CFG.queries.join(', ')})</span>`;
+$('foot').innerHTML =
+  '라이선스: <b>CC0</b> · <b>Pixabay Content License</b> = 출처 표기 없이 써도 됨. <b>BY</b> = 출처(작성자 · 링크)를 남겨야 함. <b>BY-NC</b> = 비상업만(쓰기 전에 확인). ' +
+  'Pixabay의 freesound_community는 Freesound에서 옮겨 온 소리라 원래 라이선스를 따로 확인하는 게 안전하다. ' +
+  '소리는 각 사이트 미리듣기를 바로 재생하고(내려받지 않음), 숫자는 미리듣기를 이 브라우저에서 디코드해 잰다: 앞 무음 = 최고점의 −20 dB를 처음 넘을 때까지(게임에 넣을 때 잘라낼 수 있다), 실제 길이 = 그때부터 −40 dB 위가 끝날 때까지.';
+
+// pattern: 반복 겹. rise가 있으면 한 겹마다 rise 반음씩 오른다(점 이어 먹기, 게임 FeedbackTuning.dotPitchStep), 없으면 음높이를 번갈아 흔든다(뚜두둑)
+const P = CFG.pattern;
+if (P) {
+  const rise = P.rise != null;
+  $('knobs').innerHTML =
+    `<label class="knob">${P.name} 간격 <input type="range" id="gap" min="10" max="150" step="5" value="${Math.round(P.gap * 1000)}"><b id="gapv">${Math.round(P.gap * 1000)} ms</b></label>` +
+    (rise
+      ? `<label class="knob">한 번에 오르는 음 <input type="range" id="spread" min="0" max="3" step="0.5" value="${P.rise}"><b id="spreadv">${P.rise} 반음</b></label>`
+      : `<label class="knob">음높이 차 <input type="range" id="spread" min="0" max="0.3" step="0.05" value="${P.spread}"><b id="spreadv">±${P.spread.toFixed(2)}</b></label>`);
+  $('gap').oninput = () => $('gapv').textContent = $('gap').value + ' ms';
+  $('spread').oninput = () => $('spreadv').textContent = rise ? $('spread').value + ' 반음' : '±' + (+$('spread').value).toFixed(2);
+}
+
+function licClass(l) { return l === 'Creative Commons 0' ? 'cc0' : l === 'Pixabay Content License' ? 'px' : /NonCommercial/.test(l) ? 'nc' : 'by'; }
+function licLabel(l) { return { 'Creative Commons 0': 'CC0', 'Attribution': 'BY', 'Attribution NonCommercial': 'BY-NC', 'Pixabay Content License': 'Pixabay' }[l] || l; }
+function key(d) { return d.src + ':' + d.id; }
+function siteName(d) { return d.src === 'freesound' ? 'Freesound' : d.src === 'pixabay' ? 'Pixabay' : d.src; }
+
+function stopAll() {
+  live.forEach(a => a.pause()); live = [];
+  timers.forEach(clearTimeout); timers = [];
+  if (activeBtn) { activeBtn.classList.remove('on'); activeBtn.closest('.card').classList.remove('playing'); }
+  activeBtn = null;
+}
+
+// layers: [{src, volume, pitch, delay}] — 늦춤만큼 늦게, 음높이 = 재생 속도(음높이 유지 끔)
+function play(btn, layers) {
+  if (activeBtn === btn) { stopAll(); return; }
+  stopAll();
+  activeBtn = btn; btn.classList.add('on'); btn.closest('.card').classList.add('playing');
+  const master = +$('vol').value;
+  let ended = 0;
+  for (const l of layers) {
+    const a = new Audio(l.src);
+    a.preservesPitch = false; a.playbackRate = l.pitch || 1; a.volume = Math.max(0, Math.min(1, master * (l.volume ?? 1)));
+    a.addEventListener('ended', () => { if (++ended === layers.length && activeBtn === btn) stopAll(); });
+    live.push(a);
+    timers.push(setTimeout(() => a.play().catch(() => {}), (l.delay || 0) * 1000));
+  }
+}
+
+// 반복 겹(예: 뚜두둑 3겹): 같은 소리를 간격마다, 음높이를 번갈아 흔들고 볼륨은 차례로 줄인다
+function pattern(d) {
+  const gap = +$('gap').value / 1000, s = +$('spread').value, n = P.count;
+  if (P.rise != null) return Array.from({ length: n }, (_, i) => ({ src: d.mp3, volume: 1, pitch: Math.pow(2, i * s / 12), delay: gap * i }));
+  const shape = [0.67, -0.33, 1.33, -0.67, 1.0];
+  return Array.from({ length: n }, (_, i) => ({ src: d.mp3, volume: Math.max(0.3, 1 - i * 0.2), pitch: 1 + s * shape[i % shape.length], delay: gap * i }));
+}
+
+// 미리듣기를 디코드해 시작 · 최고 · 길이 · 파형을 잰다(사이트가 CORS를 허용할 때만, 안 되면 비워 둔다)
+let queue = [], running = 0;
+function measure(d, done) { queue.push([d, done]); pump(); }
+function pump() {
+  while (running < 4 && queue.length) {
+    const [d, done] = queue.shift();
+    running++;
+    fetch(d.mp3, { mode: 'cors' }).then(r => r.arrayBuffer())
+      .then(buf => new OfflineAudioContext(1, 22050, 22050).decodeAudioData(buf))
+      .then(ab => {
+        const x = ab.getChannelData(0), sr = ab.sampleRate;
+        let top = 0, at = 0;
+        for (let i = 0; i < x.length; i++) { const v = Math.abs(x[i]); if (v > top) { top = v; at = i; } }
+        let on = 0; while (on < x.length && Math.abs(x[on]) < top * 0.1) on++;
+        let end = x.length - 1; while (end > 0 && Math.abs(x[end]) < top * 0.01) end--;
+        const bins = 120, peaks = [];
+        for (let b = 0; b < bins; b++) { let m = 0; const s0 = Math.floor(b * x.length / bins), s1 = Math.floor((b + 1) * x.length / bins); for (let i = s0; i < s1; i++) m = Math.max(m, Math.abs(x[i])); peaks.push(top ? m / top : 0); }
+        stats[key(d)] = { onset: on / sr, peak: at / sr, len: end / sr, dur: ab.duration, peaks };
+      })
+      .catch(() => { stats[key(d)] = null; })
+      .finally(() => { running--; done(); pump(); });
+  }
+}
+
+function drawWave(cv, st) {
+  const w = cv.clientWidth, h = cv.clientHeight, dpr = devicePixelRatio || 1;
+  if (!w) return;
+  cv.width = w * dpr; cv.height = h * dpr;
+  const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, w, h);
+  const css = getComputedStyle(document.documentElement);
+  if (!st) { g.fillStyle = css.getPropertyValue('--sub'); g.font = '11px sans-serif'; g.fillText(st === null ? '파형을 못 읽음' : '파형 읽는 중…', 8, h / 2 + 4); return; }
+  const bw = w / st.peaks.length;
+  g.fillStyle = css.getPropertyValue('--wave').trim();
+  st.peaks.forEach((p, i) => { const v = Math.max(1, p * (h - 6)); g.fillRect(i * bw, (h - v) / 2, Math.max(1, bw - 0.5), v); });
+  // 시작 · 최고 표시
+  g.fillStyle = css.getPropertyValue('--wave-on').trim();
+  [st.onset, st.peak].forEach(t => g.fillRect(t / st.dur * w, 0, 1.5, h));
+}
+
+function card(d) {
+  const el = document.createElement('div');
+  const k = key(d);
+  el.className = 'card' + (stars.has(k) ? ' star' : '') + (choice && choice.key === k ? ' chosen' : '');
+  const long = d.dur > 3;
+  el.innerHTML = `
+    <canvas class="wave"></canvas>
+    <div class="body">
+      <div class="top"><div class="title">${d.title}</div><button class="starbtn" title="고르기">${stars.has(k) ? '★' : '☆'}</button></div>
+      <div class="meta">${d.user || ''} · ${d.dur} s${d.downloads ? ` · 내려받기 ${d.downloads}` : ''} · <a href="${d.url}" target="_blank" rel="noopener">${siteName(d)}</a></div>
+      <div class="stats">재는 중…</div>
+      <div class="badges"><span class="badge ${licClass(d.lic)}">${licLabel(d.lic)}</span>${long ? '<span class="badge warn">여러 번 녹음 · 잘라 써야 함</span>' : ''}${d.user === 'freesound_community' ? '<span class="badge">Freesound에서 옮겨 옴</span>' : ''}</div>
+      <div class="btns"><button data-m="one">▶ 한 번</button>${P ? `<button data-m="pat">▶ ${P.name}</button>` : ''}${CFG.game && CFG.game.length ? `<button data-m="game">▶ ${CFG.gameLabel || '게임 소리와 같이'}</button>` : ''}<button class="decide">${choice && choice.key === k ? '결정됨' : '이걸로 결정'}</button></div>
+    </div>`;
+  const one = () => [{ src: d.mp3, volume: 1 }];
+  el.querySelector('[data-m=one]').onclick = e => play(e.currentTarget, one());
+  if (P) el.querySelector('[data-m=pat]').onclick = e => play(e.currentTarget, pattern(d));
+  if (CFG.game && CFG.game.length) el.querySelector('[data-m=game]').onclick = e => play(e.currentTarget, [...CFG.game, ...(P ? pattern(d) : one())]);
+  el.querySelector('.starbtn').onclick = () => { stars.has(k) ? stars.delete(k) : stars.add(k); store.set(KEY_STARS, [...stars]); render(); };
+  el.querySelector('.decide').onclick = () => {
+    const mode = P ? { pattern: P.name, gap: +$('gap').value / 1000, [P.rise != null ? 'rise' : 'spread']: +$('spread').value } : null;
+    choice = choice && choice.key === k ? null : { key: k, src: d.src, id: d.id, title: d.title, url: d.url, mp3: d.mp3, lic: d.lic, user: d.user, mode, at: new Date().toISOString() };
+    store.set(KEY_CHOICE, choice); render();
+  };
+  const cv = el.querySelector('canvas'), sEl = el.querySelector('.stats');
+  const show = () => {
+    const st = stats[k];
+    drawWave(cv, st);
+    // 시작 = 앞 무음 길이(넣을 때 잘라낼 수 있다), 실제 길이 = 시작부터 끝까지
+    sEl.innerHTML = st ? `앞 무음 <b>${Math.round(st.onset * 1000)} ms</b> · 시작 뒤 최고 <b>${Math.round((st.peak - st.onset) * 1000)} ms</b> · 실제 길이 <b>${Math.max(0, st.len - st.onset).toFixed(2)} s</b>` : st === null ? '잴 수 없음(사이트가 막음)' : '재는 중…';
+  };
+  if (k in stats) requestAnimationFrame(show); else { requestAnimationFrame(show); measure(d, show); }
+  return el;
+}
+
+function render() {
+  stopAll();
+  const g = $('grid');
+  g.innerHTML = '';
+  let list = DATA.filter(d =>
+    filter === 'all' ||
+    (filter === 'free' && (d.lic === 'Creative Commons 0' || d.lic === 'Pixabay Content License')) ||
+    (filter === 'short' && d.dur <= 1) ||
+    (filter === 'star' && stars.has(key(d))));
+  list = [...list.filter(d => stars.has(key(d))), ...list.filter(d => !stars.has(key(d)))];
+  list.forEach(d => g.appendChild(card(d)));
+  if (!list.length) g.innerHTML = '<p class="meta">맞는 후보가 없다.</p>';
+  const picked = DATA.filter(d => stars.has(key(d)));
+  $('picked').innerHTML = picked.length
+    ? `고른 것 <b>${picked.length}</b>: ` + picked.map(d => `<b>${d.title}</b> (${siteName(d)} ${d.id})`).join(', ')
+    : '아직 고른 것이 없다. ☆를 누르면 여기에 모인다.';
+  const c = $('choice');
+  c.classList.toggle('on', !!choice);
+  if (choice) c.innerHTML = `<b>결정:</b> ${choice.title} (${siteName(choice)} ${choice.id}, ${licLabel(choice.lic)})${choice.mode ? ` · ${choice.mode.pattern} 간격 ${Math.round(choice.mode.gap * 1000)} ms · ${choice.mode.rise != null ? `한 번에 ${choice.mode.rise} 반음` : `음높이 차 ±${choice.mode.spread}`}` : ''} — Claude에게 "결정했어"라고 말하면 게임에 넣는다.`;
+}
+
+document.querySelectorAll('#bar [data-f]').forEach(b => b.onclick = () => {
+  document.querySelectorAll('#bar [data-f]').forEach(x => x.setAttribute('aria-pressed', x === b));
+  filter = b.dataset.f; render();
+});
+render();
+</script>
+</body>
+</html>

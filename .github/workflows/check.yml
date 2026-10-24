@@ -1,0 +1,14 @@
+# 스킬 저장소 검사(GitHub에 둘 때). .gitlab-ci.yml과 같은 일을 한다.
+name: check
+on: [push, pull_request]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: sudo apt-get install -y -qq python3-pil
+      - run: npm install -g --silent @anthropic-ai/claude-code
+      - run: claude plugin validate .
+      - run: python3 -I tests/run_tests.py

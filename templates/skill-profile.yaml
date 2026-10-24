@@ -1,0 +1,29 @@
+# 각 게임 프로젝트의 .claude/skill-profile.yaml 로 복사해 채운다.
+# 스킬은 경로 · 이름을 코드에 적지 않고 이 파일에서 읽는다. 없는 항목은 지우지 말고 비워 둔다.
+project: TombOfTheMask
+python: '"%LOCALAPPDATA%/Programs/Python/Python312/python.exe" -I'   # 셸에서 그대로 붙여 쓰는 실행 명령
+work_dir: references/web          # git 무시 작업 폴더(후보 파일 · 비교 페이지 · 받은 미리보기)
+cell_px: 24                       # 게임 1칸의 그림 px
+character: 문어                    # 비교 페이지의 "1칸" 표시 이름
+
+sound:
+  slots: Assets/_Project/Scripts/Runtime/Data/SoundTuning.cs   # 소리 순간 enum(SoundId)
+  tuning_asset: Assets/_Project/Data/Tuning/SoundTuning.asset  # 순간별 겹 · 볼륨
+  sfx_dir: Assets/_Project/Audio/Sfx
+  source_dir: Assets/_Project/Audio/_Source
+  play_call: Sfx.Play(SoundId.X)
+  preview_server: { name: sound-board, port: 8093 }            # .claude/launch.json
+  board: references/_tools/sound_board.py                      # 없으면 비움
+
+vfx:
+  art_dir: Assets/_Project/Art/Fx
+  ppu: 24
+  background: "#0b1620"           # 게임 배경에 가까운 무대 색
+  role_colors: docs/CONCEPT.md    # 역할 색(수집물 · 위험 등) 문서
+
+docs:
+  rules: docs/GDD.md
+  decisions: docs/SYSTEM.md
+  pending: docs/PENDING.md
+  credits_sound: docs/references/sound_credits.md
+  credits_vfx: docs/references/vfx_credits.md

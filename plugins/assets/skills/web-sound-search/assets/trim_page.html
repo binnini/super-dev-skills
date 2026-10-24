@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>소리 자르기 미리듣기</title>
+<style>
+:root { --bg: #f6f5f2; --card: #fff; --ink: #1d1d1b; --sub: #6b6a66; --line: #e2e0da; --accent: #d9a400; --img: #1b1b22; --wave: #8f8c84; --sel: rgba(217,164,0,.28); --pick-bg: #fff4d1; }
+@media (prefers-color-scheme: dark) { :root { --bg: #141417; --card: #1e1e23; --ink: #ecebe6; --sub: #9a988f; --line: #2e2e35; --accent: #ffd23f; --img: #0c0c10; --wave: #5a5a62; --sel: rgba(255,210,63,.25); --pick-bg: #3a3214; } }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.45 "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif; }
+main { max-width: 1100px; margin: 0 auto; padding: 16px; }
+h1 { font-size: 18px; margin: 0 0 4px; }
+.lead { color: var(--sub); font-size: 13px; margin: 0 0 12px; }
+.panel { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px; margin-bottom: 12px; }
+canvas { width: 100%; height: 160px; display: block; background: var(--img); border-radius: 8px; cursor: crosshair; touch-action: none; }
+.axis { display: flex; justify-content: space-between; font-size: 11px; color: var(--sub); margin-top: 2px; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+button { border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 5px 12px; font: inherit; font-size: 13px; cursor: pointer; }
+button.on { background: var(--accent); color: #000; border-color: var(--accent); }
+button.pre { border-radius: 8px; text-align: left; }
+button.pre small { display: block; color: var(--sub); font-size: 11px; }
+label { font-size: 13px; color: var(--sub); display: flex; gap: 6px; align-items: center; }
+input[type=number] { width: 76px; font: inherit; padding: 3px 6px; border: 1px solid var(--line); border-radius: 6px; background: var(--card); color: var(--ink); }
+.info { font-size: 13px; }
+.info b { font-weight: 600; }
+.choice { padding: 8px 12px; border-radius: 10px; background: var(--pick-bg); font-size: 13px; display: none; margin-top: 10px; }
+.choice.on { display: block; }
+.note { color: var(--sub); font-size: 12px; }
+</style>
+</head>
+<body>
+<main>
+  <h1 id="h1">소리 자르기 미리듣기</h1>
+  <p class="lead" id="lead"></p>
+  <div class="panel">
+    <canvas id="cv"></canvas>
+    <div class="axis" id="axis"></div>
+    <p class="note">파형을 끌어 구간을 고르거나, 아래 후보를 누르거나, 숫자를 고친다. 노란 세로줄 = 가장 큰 곳.</p>
+    <div class="row" id="presets"></div>
+    <div class="row">
+      <label>시작 <input type="number" id="s" step="0.005" min="0"> s</label>
+      <label>끝 <input type="number" id="e" step="0.005" min="0"> s</label>
+      <label>앞 페이드 <input type="number" id="fi" step="0.002" min="0" value="0.005"> s</label>
+      <label>뒤 페이드 <input type="number" id="fo" step="0.005" min="0" value="0.04"> s</label>
+      <label>볼륨 <input type="range" id="vol" min="0" max="1" step="0.05" value="0.8"></label>
+    </div>
+    <div class="row">
+      <button id="pSel">▶ 고른 구간</button>
+      <button id="pPat" style="display:none">▶ 반복 겹</button>
+      <button id="pGame" style="display:none">▶ 게임 소리와 같이</button>
+      <button id="pAll">▶ 원본 전체</button>
+      <button id="save">이 구간으로 결정</button>
+    </div>
+    <p class="info" id="info"></p>
+    <p class="choice" id="choice"></p>
+  </div>
+  <p class="note" id="foot"></p>
+</main>
+<script>
+// 소리 자르기 미리듣기(웹 소리 찾기 스킬). 주소 뒤 값: src(mp3) · title · key(저장 키) · cuts("이름:시작-끝,…") · game(같이 틀 파일 "경로*볼륨|…") · pattern("이름:겹수:간격:음높이차")
+// 미리듣기를 브라우저에서 디코드해 자른 구간만 Web Audio로 튼다(내려받지 않음)
+const Q = new URLSearchParams(location.search);
+const SRC = Q.get('src'), TITLE = Q.get('title') || '소리', KEY = (Q.get('key') || 'trim') + '_trim';
+const CUTS = (Q.get('cuts') || '').split(',').filter(Boolean).map(c => { const [n, r] = c.split(':'); const [a, b] = r.split('-').map(Number); return { n, a, b }; });
+const GAME = (Q.get('game') || '').split('|').filter(Boolean).map(g => { const [p, v] = g.split('*'); return { src: p, volume: v ? +v : 1 }; });
+const PAT = Q.get('pattern') ? (([n, c, g, s]) => ({ name: n, count: +c, gap: +g, spread: +s }))(Q.get('pattern').split(':')) : null;
+const $ = id => document.getElementById(id);
+const ctx = new (window.AudioContext || window.webkitAudioContext)();
+let buf = null, peaks = [], peakAt = 0, sel = { a: 0, b: 0 }, nodes = [], activeBtn = null;
+const store = { get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+
+$('h1').textContent = TITLE + ' — 자르기';
+document.title = TITLE + ' 자르기';
+$('lead').innerHTML = `원본: <a href="${SRC}" target="_blank" rel="noopener">미리듣기 mp3</a>. 자른 구간 · 페이드는 게임에 넣을 때 그대로 쓴다(ffmpeg로 원본 파일을 자름).`;
+$('foot').textContent = '구간은 이 브라우저에 저장된다. 결정한 뒤 Claude에게 "구간 정했어"라고 말하면 원본을 받아 그대로 자른다.';
+if (PAT) { $('pPat').style.display = ''; $('pPat').textContent = '▶ ' + PAT.name; }
+if (GAME.length) $('pGame').style.display = '';
+
+function setSel(a, b) {
+  const d = buf ? buf.duration : 1;
+  sel.a = Math.max(0, Math.min(a, b)); sel.b = Math.min(d, Math.max(a, b));
+  $('s').value = sel.a.toFixed(3); $('e').value = sel.b.toFixed(3);
+  draw(); info();
+}
+
+function info() {
+  if (!buf) return;
+  const lead = peakAt - sel.a;
+  $('info').innerHTML = `구간 <b>${sel.a.toFixed(3)} ~ ${sel.b.toFixed(3)} s</b> · 길이 <b>${(sel.b - sel.a).toFixed(3)} s</b> · ` +
+    (lead >= 0 && peakAt <= sel.b ? `가장 큰 곳까지 <b>${Math.round(lead * 1000)} ms</b>(소리가 나는 순간 뒤 이만큼 늦게 가장 크다)` : '가장 큰 곳이 구간 밖');
+}
+
+function draw() {
+  const cv = $('cv'), w = cv.clientWidth, h = cv.clientHeight, dpr = devicePixelRatio || 1;
+  cv.width = w * dpr; cv.height = h * dpr;
+  const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const css = getComputedStyle(document.documentElement), d = buf ? buf.duration : 1;
+  g.clearRect(0, 0, w, h);
+  if (!buf) { g.fillStyle = css.getPropertyValue('--sub'); g.fillText('읽는 중…', 10, 20); return; }
+  g.fillStyle = css.getPropertyValue('--sel'); g.fillRect(sel.a / d * w, 0, (sel.b - sel.a) / d * w, h);
+  const bw = w / peaks.length; g.fillStyle = css.getPropertyValue('--wave').trim();
+  peaks.forEach((p, i) => { const v = Math.max(1, p * (h - 8)); g.fillRect(i * bw, (h - v) / 2, Math.max(1, bw - 0.4), v); });
+  g.fillStyle = css.getPropertyValue('--accent').trim(); g.fillRect(peakAt / d * w, 0, 1.5, h);
+}
+
+function stopAll() { nodes.forEach(n => { try { n.stop(); } catch (e) {} }); nodes = []; if (activeBtn) activeBtn.classList.remove('on'); activeBtn = null; }
+
+// 자른 구간 한 겹: 앞뒤 페이드, 음높이 = 재생 속도
+function region(when, pitch, vol) {
+  const fi = +$('fi').value, fo = +$('fo').value, len = sel.b - sel.a;
+  const s = ctx.createBufferSource(); s.buffer = buf; s.playbackRate.value = pitch;
+  const gn = ctx.createGain(); s.connect(gn).connect(ctx.destination);
+  const t0 = ctx.currentTime + when, real = len / pitch;
+  gn.gain.setValueAtTime(0, t0); gn.gain.linearRampToValueAtTime(vol, t0 + Math.min(fi, real / 2) + 1e-4);
+  gn.gain.setValueAtTime(vol, t0 + Math.max(0, real - fo)); gn.gain.linearRampToValueAtTime(0, t0 + real);
+  s.start(t0, sel.a, len); nodes.push(s);
+  return real + when;
+}
+
+async function playFile(src, when, vol) {
+  const b = await ctx.decodeAudioData(await (await fetch(src)).arrayBuffer());
+  const s = ctx.createBufferSource(); s.buffer = b; const gn = ctx.createGain(); gn.gain.value = vol; s.connect(gn).connect(ctx.destination);
+  s.start(ctx.currentTime + when); nodes.push(s);
+}
+
+function go(btn, fn) {
+  if (activeBtn === btn) { stopAll(); return; }
+  stopAll(); ctx.resume(); activeBtn = btn; btn.classList.add('on');
+  const end = fn();
+  setTimeout(() => { if (activeBtn === btn) stopAll(); }, (end + 0.2) * 1000);
+}
+
+function pattern(v) {
+  let end = 0; const shape = [0.67, -0.33, 1.33, -0.67, 1.0];
+  for (let i = 0; i < PAT.count; i++) end = Math.max(end, region(PAT.gap * i, 1 + PAT.spread * shape[i % 5], v * Math.max(0.3, 1 - i * 0.2)));
+  return end;
+}
+
+$('pSel').onclick = e => go(e.currentTarget, () => region(0, 1, +$('vol').value));
+$('pPat').onclick = e => go(e.currentTarget, () => pattern(+$('vol').value));
+$('pGame').onclick = e => go(e.currentTarget, () => { const v = +$('vol').value; GAME.forEach(gm => playFile(gm.src, 0, v * gm.volume)); return Math.max(1, region(0, 1, v)); });
+$('pAll').onclick = e => go(e.currentTarget, () => { const s = ctx.createBufferSource(); s.buffer = buf; const gn = ctx.createGain(); gn.gain.value = +$('vol').value; s.connect(gn).connect(ctx.destination); s.start(); nodes.push(s); return buf.duration; });
+$('s').oninput = () => setSel(+$('s').value, sel.b);
+$('e').oninput = () => setSel(sel.a, +$('e').value);
+$('save').onclick = () => {
+  const c = { src: SRC, title: TITLE, start: +sel.a.toFixed(3), end: +sel.b.toFixed(3), fadeIn: +$('fi').value, fadeOut: +$('fo').value, peakAt: +peakAt.toFixed(3), at: new Date().toISOString() };
+  store.set(KEY, c); showChoice();
+};
+function showChoice() {
+  const c = store.get(KEY), el = $('choice');
+  el.classList.toggle('on', !!c);
+  if (c) el.innerHTML = `<b>결정한 구간:</b> ${c.start} ~ ${c.end} s(길이 ${(c.end - c.start).toFixed(3)} s), 앞 페이드 ${c.fadeIn} s · 뒤 페이드 ${c.fadeOut} s — Claude에게 "구간 정했어"라고 말하면 된다.`;
+}
+
+// 끌어서 고르기
+let drag = null;
+const tAt = ev => { const r = $('cv').getBoundingClientRect(); return Math.max(0, Math.min(1, (ev.clientX - r.left) / r.width)) * (buf ? buf.duration : 1); };
+$('cv').addEventListener('pointerdown', ev => { if (!buf) return; drag = tAt(ev); $('cv').setPointerCapture(ev.pointerId); setSel(drag, drag); });
+$('cv').addEventListener('pointermove', ev => { if (drag != null) setSel(drag, tAt(ev)); });
+$('cv').addEventListener('pointerup', () => { drag = null; });
+addEventListener('resize', draw);
+
+(async () => {
+  draw();
+  buf = await ctx.decodeAudioData(await (await fetch(SRC)).arrayBuffer());
+  const x = buf.getChannelData(0), bins = 600; let top = 0, at = 0;
+  for (let i = 0; i < x.length; i++) { const v = Math.abs(x[i]); if (v > top) { top = v; at = i; } }
+  peakAt = at / buf.sampleRate;
+  for (let b = 0; b < bins; b++) { let m = 0; const s0 = Math.floor(b * x.length / bins), s1 = Math.floor((b + 1) * x.length / bins); for (let i = s0; i < s1; i++) m = Math.max(m, Math.abs(x[i])); peaks.push(m / top); }
+  const ax = $('axis'); const n = Math.ceil(buf.duration / 0.1); ax.innerHTML = Array.from({ length: Math.min(n, 20) + 1 }, (_, i) => `<span>${(i * buf.duration / Math.min(n, 20)).toFixed(2)}</span>`).join('');
+  const pr = $('presets');
+  CUTS.forEach(c => { const b = document.createElement('button'); b.className = 'pre'; b.innerHTML = `${c.n} <small>${c.a.toFixed(2)} ~ ${c.b.toFixed(2)} s · 앞 ${Math.round((peakAt - c.a) * 1000)} ms</small>`; b.onclick = () => { setSel(c.a, c.b); go(b, () => region(0, 1, +$('vol').value)); }; pr.appendChild(b); });
+  const saved = store.get(KEY);
+  if (saved && saved.src === SRC) { $('fi').value = saved.fadeIn; $('fo').value = saved.fadeOut; setSel(saved.start, saved.end); }
+  else if (CUTS.length) setSel(CUTS[0].a, CUTS[0].b); else setSel(0, buf.duration);
+  showChoice();
+})();
+</script>
+</body>
+</html>
