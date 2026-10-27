@@ -43,10 +43,11 @@ BigHunter(9/29~10/13) · TombOfTheMask(10/14~10/27 마감)를 회고하고 다�
 | 10-24 | CI | GitLab CI 3단계. 1 · 2단계는 작업 PC 하나로 가능(1단계 Linux Docker 공용 러너, 2단계 작업 PC Runner) | TotM tools/rules가 Linux에서 FAIL 0 · 26초로 돎(10-24 확인) |
 | 10-24 | UI | 배치는 프리팹(사람), 움직임은 Animation Sequencer 또는 클립(사람), 내용 · 흐름은 코드(AI). uGUI 유지, `ui_<화면>_<요소>` 이름 연결 | UI를 코드가 배치해 나중에 고치기 어려웠음 |
 | 10-24 | 그림 형식 | 리그 캐릭터 PSD, UI는 요소별 PNG + 배치 시안 PSD, 도트는 Aseprite/PNG 시트, 나머지 PNG | TOOLKIT 5장 |
-| 10-24 | 디자이너 협업 | Unity 안 디자이너 작업 창(com.pudin.artsync, git을 백그라운드로) + 비상용 SourceTree/GitHub Desktop. 소유는 폴더(Art/), PSD · 프리팹은 GitLab 파일 잠금 | 디자이너는 Unity · Git에 서툼. 기존 Unity Git 도구는 보관 · 오류 보고로 불안 |
+| 10-24 | 디자이너 협업 | Unity 안 디자이너 작업 창(com.pudin.artsync, git을 백그라운드로) + 비상용 SourceTree/GitHub Desktop. 소유는 폴더(Art/), PSD · 프리팹은 GitLab 파일 잠금. **10-27 바꿈: 첫 주는 최소판(Art/ 소유 · LFS 잠금 · CI 그림 검사 · 머지 요청 양식), 작업 창은 막히는 지점을 본 뒤(3순위)** | 디자이너는 Unity · Git에 서툼. 기존 Unity Git 도구는 보관 · 오류 보고로 불안. 비개발자용 git 자동화는 꼬이면 수습이 개발자 몫이라 먼저 만들 위험이 큼 |
 | 10-24 | 스킬 저장소 | 이 저장소(GitHub `binnini/super-dev-skills`)를 Claude Code 플러그인 마켓플레이스로. 프로젝트 경로는 `.claude/skill-profile.yaml` | 프로젝트마다 복사하던 스킬을 한곳에서 고치고 업데이트로 배포 |
 | 10-24 | VFX 에셋 | **유료 에셋은 추천하지 않는다. 유료 에셋을 레퍼런스로 삼아 만드는 것은 허용.** 무료 여부는 실제 받는 단계로 확인 | 처음 찾은 후보가 받을 때 결제 창이 떠 유료로 보였음("원하는 만큼 내기"는 0원 가능) |
 | 10-24 | VFX 생성 | 맞는 무료 에셋이 없으면 Pixel Ability-fx Forge(Apache 2.0)로 만든다. 모양은 시드로 고른다 | 10-24 headless로 24개 생성 · 비교. 결과물 사용 조건은 명시가 없어 확인 권장 |
+| 10-27 | 만드는 순서 | "마감 뒤 이틀에 8가지"를 순위로 바꿈. **1순위(과제 시작 전) = 템플릿 · docs · 플레이북 v2, 튜닝 패널, CI 1단계, 3일차 결정 게이트.** 2순위(첫 주) = 잠금 훅 · 검증 복제, 배치 소유 규칙, 디자이너 협업 최소판, feel · devtools. 3순위(필요할 때) = artsync, bottleneck-report, video-measure 등. 표는 TOOLKIT 8장 | 이틀로 8가지는 무리. TotM에서 시간이 가장 많이 샌 곳(값마다 다시 빌드, 늦은 방향 전환, 튜닝 숫자에 묶인 검사, 에디터 나눠 쓰기)을 막는 것부터 |
 
 ## 다음 할 일
 
@@ -55,19 +56,25 @@ BigHunter(9/29~10/13) · TombOfTheMask(10/14~10/27 마감)를 회고하고 다�
 - [ ] 자석 오라: 비교 페이지에서 ☆ · 결정 → 고른 것을 TotM에 넣을지 정하기. 지금 게임의 자석 색은 분홍(`PowerupScreenFx.magnetColor` #FF4FA0)이고 CONCEPT에서 노랑 · 흰색은 수집물 색이라 헷갈릴 수 있음 → 같이 결정
 - [ ] 각 게임 저장소에 이 스킬 저장소를 넣기(README "시작하기 B"). TotM은 10-27 완료(assets 0.1.1에 로컬 복사본의 현황 페이지 등을 옮긴 뒤 복사본을 지움, TotM 커밋 전). BigHunter 남음
 
-### 10/27 마감 뒤 이틀 (TOOLKIT 8장)
-- [ ] project-template + 플레이북 v2(테스트 계층 · `run.ps1 -Changed`)
+순서는 10-27에 다시 정했다(TOOLKIT 8장 표에 근거). 1순위 네 가지만 있어도 1일차(TOOLKIT 7장)가 돈다.
+
+### 1순위 · 과제 시작 전
+- [ ] project-template + docs 세트 + 플레이북 v2(테스트 작성 규칙 · 계층 · `run.ps1 -Changed`)
+- [ ] com.pudin.tuning(튜닝 패널)
 - [ ] CI 1단계(`.gitlab-ci.yml`, Linux Docker + .NET + pwsh, LFS 끔)
-- [ ] com.pudin.feel(FX 배치 도구 포함), com.pudin.tuning, com.pudin.devtools(기록기 포함)
-- [ ] 플러그인 `editor-lease`(Unity 에디터가 있는 Windows PC에서 만들고 시험)
+- [ ] 3일차 결정 게이트 체크리스트를 템플릿에(컨셉 · 화면 폭 · 판정 크기 · 뼈 이름 · UI 구조)
+
+### 2순위 · 과제 첫 주
+- [ ] 플러그인 `editor-lease` + 검증 복제 프로젝트(Unity 에디터가 있는 Windows PC에서 만들고 시험)
+- [ ] 배치 소유 규칙: UI · FX 배치 프리팹은 `Art/` 아래 사람 소유(플레이북 v2에 적음)
+- [ ] 디자이너 협업 최소판: `Art/` 소유 · LFS 파일 잠금 · CI 그림 자동 검사 · 머지 요청 양식
+- [ ] com.pudin.feel(FX 배치 도구 포함. DOTween 의존 방식을 먼저 정함), com.pudin.devtools(기록기 포함)
+- [ ] new-project, daily-report · handoff 스킬, CI 2단계(예약 · 수동 빌드)
+
+### 3순위 · 필요할 때
+- [ ] com.pudin.artsync + 디자이너 1쪽 설치 안내(최소판을 써 보고 막히는 지점을 본 뒤)
 - [ ] 플러그인 `ops` · bottleneck-report
-- [ ] com.pudin.artsync + 디자이너 1쪽 설치 안내
-
-### 다른 기기에서
-- [ ] 플러그인 `measure` · video-measure (아래 시작 프롬프트)
-
-### 과제 첫 주 · 필요할 때
-- [ ] new-project, daily-report · handoff 스킬, CI 2단계(예약 · 수동 빌드), 파일 잠금 · 그림 자동 검사 · 머지 요청 양식
+- [ ] 플러그인 `measure` · video-measure(다른 기기에서, 영상 레퍼런스가 생길 때. 아래 시작 프롬프트)
 - [ ] psdguard, uipsd, psd-drop, draft-art, report-docx, CI 3단계(GameCI)
 
 ## video-measure 시작 프롬프트

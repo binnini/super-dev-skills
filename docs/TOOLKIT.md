@@ -281,18 +281,29 @@ rules:
 
 1. **템플릿 복제**: GitLab에서 project-template으로 새 저장소를 만들고 Dev · Art · main 브랜치를 연다.
 2. **문서 채우기**: new-project 스킬(아직 없으면 CLAUDE.md 양식을 직접)로 원본 위치 표, 과제 범위, 클론 여부를 정한다. 클론이 아니면 리포트 A/B 모듈을 뺀다.
-3. **패키지 추가**: webgl-mobile, feel, tuning, devtools, Cinemachine 3, DOTween을 넣고 빌더 Step 1을 실행한다.
+3. **패키지 추가**: webgl-mobile, tuning을 넣고 빌더 Step 1을 실행한다. feel(Cinemachine 3 · DOTween)과 devtools는 만들어 둔 뒤에 넣는다(8장 2순위).
 4. **스킬 받기**: README "시작하기 B"대로 이 저장소를 프로젝트에 넣고 `.claude/skill-profile.yaml`을 채운다.
 5. **폰에 빈 씬**: 저녁 전에 Android와 모바일 브라우저 양쪽에서 빈 씬이 뜨는지 확인한다. 튜닝 패널이 열리는지도 같이 본다.
 6. **레퍼런스**: 영상이 있으면 video-measure로 사건 표부터 뽑아 `docs/references/`에 둔다.
-7. **에디터 3층**: 검증 복제 프로젝트를 만들고 잠금 훅을 켠다. 이후 세션은 영역별로 나눠 띄운다.
+7. **에디터 3층**: 검증 복제 프로젝트를 만들고 잠금 훅을 켠다(훅이 아직 없으면 첫 주 안에). 이후 세션은 영역별로 나눠 띄운다.
 8. **3일차 결정 게이트를 달력에**: 컨셉 · 화면 폭 · 판정 크기 · 뼈 이름 · UI 구조를 그날 폰에서 회색 박스로 보고 묶는다.
 
 ## 8. 만드는 순서
 
-| 시점 | 만들 것 | 이유 |
+10-27에 다시 정함. 처음 계획은 "마감 뒤 이틀"에 8가지를 모두 만드는 것이었지만 이틀로는 무리라, **TotM에서 시간이 가장 많이 샌 곳을 막는 것부터** 순위를 매겼다. 1순위 네 가지만 있어도 7장 1일차가 돈다. 나머지는 과제를 하며 필요할 때 떼어 온다.
+
+| 순위 · 시점 | 만들 것 | 막는 것(TotM 근거) |
 |---|---|---|
-| 10/27 마감 뒤 이틀 | project-template + 플레이북 v2(테스트 계층 · `run.ps1 -Changed` 포함), CI 1단계, com.pudin.feel(FX 배치 도구 포함), com.pudin.tuning, com.pudin.devtools(기록기 포함), editor-lease 훅, bottleneck-report, com.pudin.artsync(디자이너 작업 창) · 디자이너 설치 안내 | 1일차에 바로 써야 하는 것들. 두 프로젝트 코드가 아직 기억에 있을 때 떼어 냄 |
-| 다른 기기에서 · 과제 시작 전후 | video-measure | `references/_tools`와 녹화가 그 기기에 있음. 시작 프롬프트는 HANDOFF.md |
-| 과제 첫 주 | new-project, daily-report · handoff, CI 2단계(저녁 빌드), 파일 잠금 · 그림 자동 검사 · 머지 요청 양식 | 실제 과제 하나를 셋업하면서 절차를 확정 |
-| 필요할 때 | psdguard, uipsd, psd-drop, draft-art, report-docx, CI 3단계(GameCI) | 디자이너 PSD · 제출 문서 · 서버 빌드가 실제로 있을 때 |
+| **1순위** · 과제 시작 전 | ① project-template + docs 세트 + 플레이북 v2(테스트 작성 규칙 · 계층 · `run.ps1 -Changed`) | 문서 틀(원본 위치 표 · SO 수치표 · PENDING · PITFALLS)은 검증됨. 10-24 회귀 실패 2건이 튜닝 숫자에 묶인 검사였음 → 처음부터 "성질" 검사로 |
+| | ② com.pudin.tuning(튜닝 패널) | 거의 모든 작업이 "폰 확인 대기"로 남고, 값 몇 개마다 다시 빌드 · 설치했음. 빌드 횟수를 줄이는 데 효과가 가장 큼 |
+| | ③ CI 1단계(`.gitlab-ci.yml`, Linux Docker + .NET + pwsh, LFS 끔) | `tools/rules`가 Linux에서 FAIL 0 · 26초(10-24). 설정 파일 하나로 push마다 규칙 검사 |
+| | ④ 3일차 결정 게이트(만들 것 없음, 달력 · 템플릿 체크리스트) | 어항 → 심해 동굴(10-19), 하강 전환 뒤 되돌림, 맵 13 → 10칸(10-20) 같은 늦은 방향 전환이 섹션 · 아트 · 검사 수정을 줄줄이 불렀음 |
+| **2순위** · 과제 첫 주 | editor-lease 훅 + 검증 복제 프로젝트 | 에디터 하나를 여러 세션이 나눠 써서 "다른 세션이 쓰는 중이면 묻기"를 사람이 하고 있었음 |
+| | 배치 소유 규칙(UI · FX 배치 프리팹은 `Art/` 아래, 사람 소유) | UI · 연출 수치를 코드 · SO 51개로 두어 디자이너가 화면을 보며 고치기 어려웠음(10-27 디자이너 UI). 정하기만 하면 되는 규칙 |
+| | 디자이너 협업 최소판: `Art/` 소유 · LFS 파일 잠금 · CI 그림 자동 검사 · 머지 요청 양식 | 그림을 DM · 드라이브로 주고받아 버전이 섞였음 |
+| | com.pudin.feel(FX 배치 도구 포함), com.pudin.devtools(기록기 포함) | feel은 **DOTween(Asset Store) 의존 방식을 먼저 정한다**(UPM 의존성으로 바로 안 걸림: 프로젝트에 먼저 설치 + asmdef 참조 등) |
+| | new-project, daily-report · handoff 스킬, CI 2단계(예약 · 수동 빌드) | 실제 과제 하나를 셋업하면서 절차를 확정 |
+| **3순위** · 필요할 때 | com.pudin.artsync(디자이너 작업 창) · 디자이너 설치 안내 | 비개발자용 git 자동화라 가장 위험함(충돌 · LFS 꼬임 수습은 개발자 몫). 최소판을 써 보고 디자이너가 실제로 막히는 지점을 본 뒤 만든다 |
+| | bottleneck-report(`ops` 플러그인) | 위 항목들이 병목을 직접 줄인다. 텔레메트리 설정 · 사내 정책 확인도 필요 |
+| | video-measure(`measure` 플러그인, 다른 기기에서) | 다음 과제가 클론이 아니면 급하지 않음. 영상 레퍼런스가 실제로 생길 때. 시작 프롬프트는 HANDOFF.md |
+| | psdguard, uipsd, psd-drop, draft-art, report-docx, CI 3단계(GameCI) | 디자이너 PSD · 제출 문서 · 서버 빌드가 실제로 있을 때 |

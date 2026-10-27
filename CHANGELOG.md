@@ -1,5 +1,9 @@
 # 바뀐 것
 
+## 저장소 · 2026-10-27
+- `docs/TOOLKIT.md` 8장 "만드는 순서"를 1 · 2 · 3순위 표로 다시 씀(TotM 근거 열 추가). 7장 1일차의 패키지 · 잠금 훅 줄을 순위에 맞춤.
+- `docs/HANDOFF.md` "다음 할 일"을 같은 순위로 다시 나눔, "정한 것"에 10-27 만드는 순서 줄 추가, 디자이너 협업 줄에 10-27 바꾼 내용(첫 주는 최소판)을 적음.
+
 ## assets 0.1.1 · 2026-10-27
 - `assets:web-sound-search`: TombOfTheMask 로컬 복사본에서 10-24~10-26에 더한 것을 옮김.
   - 0단계 소리 현황 페이지(`scripts/build_status.py`, `assets/status_template.html`). 경로는 프로필에서 읽고, 순간 이름표 · 묶음 · 임시 삐 목록은 프로젝트의 `sound.labels` JSON으로 뺌. 원작 키가 비면 원작 줄 · 버튼을 숨김.
