@@ -7,16 +7,21 @@ cell_px: 24                       # 게임 1칸의 그림 px
 character: 문어                    # 비교 페이지의 "1칸" 표시 이름
 
 sound:
-  slots: Assets/_Project/Scripts/Runtime/Data/SoundTuning.cs   # 소리 순간 enum(SoundId)
+  slots: Assets/_Project/Scripts/Runtime/Data/SoundTuning.cs   # 소리 순간 enum이 있는 파일
+  enum: SoundId                                                # 그 enum 이름
   tuning_asset: Assets/_Project/Data/Tuning/SoundTuning.asset  # 순간별 겹 · 볼륨
+  audio_dir: Assets/_Project/Audio                             # .meta guid로 소리 파일을 찾는 폴더(현황 페이지)
   sfx_dir: Assets/_Project/Audio/Sfx
   source_dir: Assets/_Project/Audio/_Source
+  labels: .claude/sound_labels.json                            # 순간 이름표 · 묶음 · 임시 삐 목록(현황 페이지, 형식은 build_status.py 맨 위)
+  original_game_dir: Assets/_Project/Audio/Original/Resources/OriginalSounds   # 원작 소리(게임이 읽는 곳). 클론이 아니면 비움
+  original_listen_dir: Assets/_Project/Audio/Original~/Resources/OriginalSounds # 원작 소리(듣기만). 클론이 아니면 비움
   play_call: Sfx.Play(SoundId.X)
   preview_server: { name: sound-board, port: 8093 }            # .claude/launch.json
   board: references/_tools/sound_board.py                      # 없으면 비움
 
 vfx:
-  art_dir: Assets/_Project/Art/Fx
+  art_dir: Assets/_Project/Art/Vfx
   ppu: 24
   background: "#0b1620"           # 게임 배경에 가까운 무대 색
   role_colors: docs/CONCEPT.md    # 역할 색(수집물 · 위험 등) 문서
@@ -26,4 +31,5 @@ docs:
   decisions: docs/SYSTEM.md
   pending: docs/PENDING.md
   credits_sound: docs/references/sound_credits.md
+  original_sounds: docs/references/sounds.md   # 원작 소리 길이 표. 클론이 아니면 비움
   credits_vfx: docs/references/vfx_credits.md

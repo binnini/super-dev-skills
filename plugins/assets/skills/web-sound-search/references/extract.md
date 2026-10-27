@@ -36,6 +36,7 @@ window.__fs.map(s => `${s.id}|${s.dur}s|${s.lic}|dl${s.downloads}|${s.title}|${s
 - 항목 페이지의 길이 표시는 다른 소리 것이라 쓰지 않는다 → 마지막에 진짜 길이를 잰다(아래).
 - 올린 사람이 `freesound_community`면 Freesound 소리를 옮겨 온 것이다(원래 라이선스를 확인하는 게 안전).
 - 라이선스는 모두 Pixabay Content License(출처 표기 없이 사용 가능).
+- **항목 페이지를 한꺼번에 받지 않는다**(10-24): 순간 6개 × 10개를 `Promise.all`로 동시에 받으면 100개쯤에서 429("Just a moment…")가 돌아와 mp3가 0개가 된다. 한 개씩 0.4 s 간격으로 받고, 한 번에 30 s 안쪽까지만 받은 뒤 `localStorage`에 모아 다음 호출에서 이어 받는다. 429가 나면 사이트 첫 페이지를 다시 연 뒤 이어 받으면 됐다. 미리듣기 mp3(cdn)의 길이 재기는 제한에 걸리지 않았다.
 
 ```js
 const queries = ['suction', 'plunger', 'wet pop'];   // 바꿀 것

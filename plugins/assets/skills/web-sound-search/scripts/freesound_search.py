@@ -1,7 +1,7 @@
 """Freesound를 셸에서 훑기(여러 순간 · 여러 검색어). 브라우저 없이 된다(10-23 확인, Pixabay는 403이라 브라우저로).
 
-실행: python -I .claude/skills/web-sound-search/scripts/freesound_search.py <plan.json> <out.json> [순간마다 최대 개수=14]
-  plan.json = {"<key>": {"queries": ["bubble shield", ...], "maxDur": 2.5}, ...}
+실행(프로젝트 루트에서): <python> <skill_dir>/scripts/freesound_search.py <plan.json> <out.json> [순간마다 최대 개수=14]
+  plan.json = {"<key>": {"queries": ["bubble shield", ...], "maxDur": 2.5, "loop": false}, ...}  (loop: true = 이름 거르기 끔)
   out.json  = {"<key>": [후보 항목, ...], ...}  — 여러 검색어에 걸린 것 · 앞 순위 · 내려받기 많은 것부터, 길이 · 엉뚱한 이름으로 거른다.
   고른 뒤 사람이 다시 훑어 빼는 것을 전제로 한다(이름만 보고 거르므로).
 """
@@ -64,7 +64,8 @@ def main():
             except Exception as e:
                 print(f"{key} '{q}': {e}", file=sys.stderr)
             time.sleep(0.3)
-        ok = [c for c in pool.values() if 0 < c["dur"] <= p.get("maxDur", 3) and not BAD.search(c["title"])
+        # 계속 나는 소리(부스터 지속음 · 비행 물살 등)는 "loop" · "ambience" 이름이 맞는 후보라 "loop": true면 이름 거르기를 끈다
+        ok = [c for c in pool.values() if 0 < c["dur"] <= p.get("maxDur", 3) and (p.get("loop") or not BAD.search(c["title"]))
               and c["lic"] in ("Creative Commons 0", "Attribution", "Attribution NonCommercial")]
         ok.sort(key=lambda c: (-c["hits"], c["rank"], -c["downloads"]))
         result[key] = [{k: v for k, v in c.items() if k not in ("rank", "hits")} for c in ok[:limit]]

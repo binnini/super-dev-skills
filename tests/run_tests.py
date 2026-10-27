@@ -3,9 +3,15 @@
 1. 구조: 마켓플레이스 항목 ↔ 플러그인 이름 · 버전, SKILL.md 머리(name = 폴더 이름, description 1024자 이하)
 2. 바뀐 것: 플러그인 버전마다 CHANGELOG 줄이 있는지
 3. 문법: scripts/*.py 컴파일, *.js는 node --check(node가 있으면)
-4. 동작: web-vfx-search 스크립트를 작은 가짜 시트로 끝까지 돌림, web-sound-search 페이지 만들기
+4. 동작: web-vfx-search 스크립트를 작은 가짜 시트로 끝까지 돌림, web-sound-search 비교 페이지 · 현황 페이지 만들기
 """
 import json, os, py_compile, re, shutil, subprocess, sys, tempfile
+
+for _s in (sys.stdout, sys.stderr):  # Windows 콘솔(cp949)에서 한글 · 기호가 깨지거나 멈추지 않게(-I는 PYTHONIOENCODING을 무시)
+    try:
+        _s.reconfigure(encoding='utf-8')
+    except AttributeError:
+        pass
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PY = sys.executable
@@ -126,6 +132,36 @@ src = os.path.join(tmp, 'c.json'); json.dump(cfg, open(src, 'w', encoding='utf-8
 out_html = os.path.join(tmp, 'c.html')
 code, out = run([PY, '-I', os.path.join(S, 'build_page.py'), src, out_html], cwd=tmp)
 check(code == 0 and '/*CONFIG*/null' not in open(out_html, encoding='utf-8').read(), f'sound build_page: {out.strip()[:80]}')
+shutil.rmtree(tmp)
+
+# web-sound-search 현황 페이지: 가짜 프로젝트(프로필 · enum · 소리 SO · .meta · 이름표)로 끝까지
+tmp = tempfile.mkdtemp()
+def put(rel, text):
+    p = os.path.join(tmp, rel); os.makedirs(os.path.dirname(p), exist_ok=True); open(p, 'w', encoding='utf-8').write(text)
+put('.claude/skill-profile.yaml', 'work_dir: web\nsound:\n  slots: Game/Sound.cs   # 주석\n  enum: SoundId\n'
+    '  tuning_asset: Game/Sound.asset\n  audio_dir: Game/Audio\n  labels: .claude/labels.json\n'
+    '  preview_server: { name: board, port: 8093 }\ndocs:\n  credits_sound: docs/credits.md\n')
+put('Game/Sound.cs', 'public enum SoundId { Dash, Land, // 착지\n Dot }\n')
+put('Game/Sound.asset', '  useOriginal: 0\n  useTempTones: 1\n  volume: 1\n'
+    '  - id: 0\n    clip: \n    volume: 0.8\n    layers:\n    - clip: {fileID: 8300000, guid: abc123, type: 3}\n      volume: 1\n      pitch: 1.2\n      delay: 0\n'
+    '  - id: 2\n    clip: \n    volume: 1\n    layers: []\n')
+put('Game/Audio/Sfx/dash.wav', 'x')
+put('Game/Audio/Sfx/dash.wav.meta', 'fileFormatVersion: 2\nguid: abc123\n')
+put('.claude/labels.json', json.dumps({'groups': ['플레이어'], 'labels': {'Dash': ['대시', '플레이어']}, 'tempTones': ['Dot']}))
+put('docs/credits.md', '## BY — 출처 표기\n| 순간 | 파일 | 원본 |\n|---|---|---|\n| 대시 | `Sfx/dash.wav` | [Swish](https://freesound.org/s/1/) |\n')
+code, out = run([PY, '-I', os.path.join(S, 'build_status.py')], cwd=tmp)
+page = open(os.path.join(tmp, 'web', 'sound_status.html'), encoding='utf-8').read() if code == 0 else ''
+m = re.search(r'const DATA = (\{.*?\});\n', page)
+data = json.loads(m.group(1)) if m else {}
+st = {r['id']: r['state'] for r in data.get('rows', [])}
+dash = next((r for r in data.get('rows', []) if r['id'] == 'Dash'), {})
+check(code == 0 and st == {'Dash': 'own', 'Dot': 'temp'} and 'Land: 에셋에 항목 없음' in out
+      and dash.get('layers', [{}])[0].get('src') == '../Game/Audio/Sfx/dash.wav'
+      and dash['layers'][0].get('credit', {}).get('lic') == 'BY' and data.get('hasOriginal') is False
+      and 'localhost:8093/web/sound_status.html' in out, f'sound build_status: {st} {out.strip()[:120]}')
+os.remove(os.path.join(tmp, '.claude', 'skill-profile.yaml'))
+code, out = run([PY, '-I', os.path.join(S, 'build_status.py')], cwd=tmp)
+check(code != 0 and 'skill-profile.yaml' in out, 'sound build_status: 프로필이 없으면 멈춤')
 shutil.rmtree(tmp)
 
 print(f"\n{'FAIL ' + str(len(fails)) if fails else 'ALL PASS'}")

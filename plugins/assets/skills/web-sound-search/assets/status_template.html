@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>소리 현황</title>
+<style>
+:root {
+  --bg: #f6f5f2; --card: #fff; --ink: #1d1d1b; --sub: #6b6a66; --line: #e2e0da; --chip: #efede7; --accent: #d9a400;
+  --own-bg: #dcefe0; --own-ink: #1f6b35; --orig-bg: #dfe9fb; --orig-ink: #1d4f9c; --temp-bg: #efe6fb; --temp-ink: #5b2d9c; --sil-bg: #fbe9e4; --sil-ink: #9c3a1d;
+  --need-bg: #fff4d1;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #141417; --card: #1e1e23; --ink: #ecebe6; --sub: #9a988f; --line: #2e2e35; --chip: #2a2a30; --accent: #ffd23f;
+    --own-bg: #1d3a26; --own-ink: #8fdca4; --orig-bg: #1c2d4a; --orig-ink: #9cc2ff; --temp-bg: #2e2140; --temp-ink: #cfaeff; --sil-bg: #3d241c; --sil-ink: #ffb59c; --need-bg: #3a3214; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.45 "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif; }
+header { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); padding: 14px 16px 12px; }
+h1 { margin: 0 0 4px; font-size: 18px; }
+h2 { font-size: 15px; margin: 18px 0 8px; }
+.lead { margin: 0 0 10px; color: var(--sub); font-size: 13px; max-width: 960px; }
+.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.bar button { border: 1px solid var(--line); background: var(--card); color: var(--ink); padding: 5px 11px; border-radius: 999px; cursor: pointer; font: inherit; font-size: 13px; }
+.bar button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.sum { display: flex; gap: 6px; flex-wrap: wrap; margin: 0 0 8px; }
+main { padding: 4px 16px 40px; max-width: 1280px; margin: 0 auto; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 6px; }
+.card.want { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.card.playing { outline: 2px solid var(--accent); }
+.top { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
+.title { font-weight: 600; }
+.title small { color: var(--sub); font-weight: 400; margin-left: 4px; }
+.meta { font-size: 12px; color: var(--sub); }
+.meta b { color: var(--ink); font-weight: 600; }
+.badge { font-size: 11px; border-radius: 5px; padding: 0 6px; white-space: nowrap; background: var(--chip); color: var(--sub); }
+.badge.own { background: var(--own-bg); color: var(--own-ink); }
+.badge.original { background: var(--orig-bg); color: var(--orig-ink); }
+.badge.temp { background: var(--temp-bg); color: var(--temp-ink); }
+.badge.silent, .badge.nc { background: var(--sil-bg); color: var(--sil-ink); }
+.badge.by { background: var(--orig-bg); color: var(--orig-ink); }
+ul.layers { margin: 0; padding: 0 0 0 16px; font-size: 12px; color: var(--sub); }
+ul.layers li { word-break: break-all; }
+ul.layers a { color: inherit; }
+.need { background: var(--need-bg); border-radius: 8px; padding: 6px 8px; font-size: 12px; }
+.need b { font-weight: 600; }
+.need .feel { font-size: 13px; color: var(--ink); }
+.mine { display: flex; flex-direction: column; gap: 4px; font-size: 12px; }
+.mine select, .mine textarea { font: inherit; font-size: 12px; background: var(--card); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 3px 6px; width: 100%; }
+.mine textarea { resize: vertical; min-height: 34px; }
+.btns { display: flex; gap: 6px; flex-wrap: wrap; margin-top: auto; }
+.btns button { border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 3px 10px; font: inherit; font-size: 12px; cursor: pointer; }
+.btns button:disabled { opacity: .4; cursor: default; }
+#copied { color: var(--sub); font-size: 12px; }
+footer { color: var(--sub); font-size: 12px; padding: 0 16px 30px; max-width: 1280px; margin: 0 auto; }
+@media (max-width: 520px) { .grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>소리 현황 · 필요한 소리</h1>
+  <p class="lead" id="lead"></p>
+  <div class="sum" id="sum"></div>
+  <div class="bar" id="bar">
+    <button data-f="all" aria-pressed="true">전체</button>
+    <button data-f="want" aria-pressed="false">찾을 것(새로 · 바꾸기)</button>
+    <button data-f="noown" aria-pressed="false">우리 소리 없음</button>
+    <button data-f="check" aria-pressed="false">귀로 확인 대기</button>
+    <button id="copy">찾을 목록 복사</button>
+    <span id="copied"></span>
+  </div>
+</header>
+<main id="main"></main>
+<footer><span id="sources"></span> 내 판단 · 메모는 이 브라우저에만 저장된다(<code>sound_status_notes</code>). 다 고르면 <b>찾을 목록 복사</b>를 눌러 Claude에게 붙여 넣는다.</footer>
+<script>
+const DATA = /*DATA*/null;
+const KEY = 'sound_status_notes';
+const STATE = { own: '우리 소리', original: '원작 소리', temp: '임시 삐 소리', silent: '조용' };
+const WANT = { new: '새로 필요', replace: '바꾸고 싶음', check: '귀로 확인 대기', keep: '그대로' };
+const LIC = { BY: ['by', 'BY 출처 표기'], 'BY-NC': ['nc', 'BY-NC 비상업'], free: ['own', '표기 없이'], '?': ['', '라이선스 ?'] };
+const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } };
+const save = v => { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) {} };
+let notes = load(), filter = 'all';
+const el = (t, cls, txt) => { const e = document.createElement(t); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
+const wantOf = r => (notes[r.id] && notes[r.id].want) || (r.need && r.need.want) || (r.state === 'own' ? 'keep' : 'new');
+
+// 소리 재생(WebAudio): 게임처럼 겹을 늦춤 · 음높이 · 볼륨대로 같이 낸다. pickOne이면 하나만
+let ctx = null; const buffers = {};
+const audio = () => ctx || (ctx = new (window.AudioContext || window.webkitAudioContext)());
+async function buffer(src) {
+  if (!buffers[src]) buffers[src] = fetch(src).then(r => { if (!r.ok) throw new Error(r.status + ' ' + src); return r.arrayBuffer(); }).then(b => audio().decodeAudioData(b));
+  return buffers[src];
+}
+let playing = [];
+function stop() { playing.forEach(s => { try { s.stop(); } catch (e) {} }); playing = []; document.querySelectorAll('.card.playing').forEach(c => c.classList.remove('playing')); }
+async function play(card, parts) {
+  stop();
+  const c = audio(); await c.resume();
+  card.classList.add('playing');
+  const t0 = c.currentTime + 0.03; let end = 0;
+  for (const p of parts) {
+    const b = await buffer(p.src);
+    const s = c.createBufferSource(); s.buffer = b; s.playbackRate.value = p.pitch || 1;
+    const g = c.createGain(); g.gain.value = (p.volume == null ? 1 : p.volume) * (p.entry == null ? 1 : p.entry);
+    s.connect(g).connect(c.destination); s.start(t0 + (p.delay || 0)); playing.push(s);
+    end = Math.max(end, (p.delay || 0) + b.duration / (p.pitch || 1));
+  }
+  setTimeout(() => card.classList.remove('playing'), end * 1000 + 80);
+}
+
+function card(r) {
+  const c = el('div', 'card'); c.dataset.id = r.id;
+  const top = el('div', 'top');
+  const t = el('div', 'title', r.label); t.appendChild(el('small', '', r.id));
+  top.append(t, el('span', 'badge ' + r.state, STATE[r.state]));
+  c.appendChild(top);
+
+  if (r.layers.length) {
+    const opts = [`볼륨 ${r.volume}`];
+    if (r.pitchJitter) opts.push(`음높이 흔들기 ±${r.pitchJitter}`);
+    if (r.pickOne) opts.push('겹 중 하나만');
+    if (r.single) opts.push('한 번에 하나');
+    c.appendChild(el('div', 'meta', `${r.layers.length}겹 · ${opts.join(' · ')}`));
+    const ul = el('ul', 'layers');
+    r.layers.forEach(l => {
+      const li = el('li'); li.appendChild(document.createTextNode(l.file.split('/').pop() + ' '));
+      const extra = [];
+      if (l.pitch !== 1) extra.push(`음높이 ${l.pitch}`);
+      if (l.volume !== 1) extra.push(`볼륨 ${l.volume}`);
+      if (l.delay) extra.push(`+${l.delay}s`);
+      const d = el('span', 'len', ''); li.appendChild(d);
+      if (extra.length) li.appendChild(document.createTextNode(' · ' + extra.join(' · ')));
+      if (l.credit) {
+        const [cls, txt] = LIC[l.credit.lic] || LIC['?'];
+        li.appendChild(document.createTextNode(' '));
+        const a = el('a', '', ''); a.href = l.credit.url || '#'; a.target = '_blank'; a.rel = 'noopener';
+        a.appendChild(el('span', 'badge ' + cls, txt)); li.appendChild(a);
+      }
+      buffer(l.src).then(b => { d.textContent = `(${b.duration.toFixed(2)} s)`; }).catch(() => { d.textContent = '(파일 열기 실패)'; d.style.color = 'var(--sil-ink)'; });
+      ul.appendChild(li);
+    });
+    c.appendChild(ul);
+  }
+  const o = r.orig;
+  if (DATA.hasOriginal) {
+    if (o.clip) c.appendChild(el('div', 'meta', `원작 ${o.clip}${o.len != null ? ` · ${o.len} s` : ''}${o.src ? '' : ' · 파일 없음(듣기 불가)'}`));
+    else c.appendChild(el('div', 'meta', '원작 소리 없음(클론에만 있는 순간)'));
+  }
+
+  if (r.need) {
+    const n = el('div', 'need');
+    const head = el('div'); head.appendChild(el('b', '', 'Claude 초안 · ' + (WANT[r.need.want] || r.need.want || '')));
+    n.appendChild(head);
+    if (r.need.feel) n.appendChild(el('div', 'feel', r.need.feel));
+    const bits = [];
+    if (r.need.length) bits.push('길이 ' + r.need.length);
+    if (r.need.with) bits.push('같이: ' + r.need.with);
+    if (bits.length) n.appendChild(el('div', '', bits.join(' · ')));
+    if (r.need.why) n.appendChild(el('div', 'meta', '근거: ' + r.need.why));
+    c.appendChild(n);
+  }
+
+  const mine = el('div', 'mine');
+  const sel = el('select');
+  Object.entries(WANT).forEach(([k, v]) => { const op = el('option', '', '내 판단: ' + v); op.value = k; sel.appendChild(op); });
+  sel.value = wantOf(r);
+  const memo = el('textarea'); memo.placeholder = '원하는 느낌 · 소리 모양(예: "뚜두둑", "쫀득하게", 더 짧게)'; memo.value = (notes[r.id] && notes[r.id].memo) || '';
+  const upd = () => { notes[r.id] = { want: sel.value, memo: memo.value }; save(notes); c.classList.toggle('want', ['new', 'replace'].includes(sel.value)); apply(); };
+  sel.onchange = upd; memo.oninput = () => { notes[r.id] = { want: sel.value, memo: memo.value }; save(notes); };
+  mine.append(sel, memo); c.appendChild(mine);
+  c.classList.toggle('want', ['new', 'replace'].includes(sel.value));
+
+  const btns = el('div', 'btns');
+  const now = el('button', '', r.layers.length ? '▶ 지금 소리(게임처럼)' : '▶ 지금 소리 없음');
+  now.disabled = !r.layers.length;
+  now.onclick = () => {
+    const ls = r.pickOne ? [r.layers[Math.floor(Math.random() * r.layers.length)]] : r.layers;
+    play(c, ls.map(l => ({ src: l.src, pitch: l.pitch, volume: l.volume, delay: l.delay, entry: r.volume })));
+  };
+  const orig = el('button', '', '▶ 원작');
+  orig.disabled = !o.src;
+  orig.onclick = () => play(c, [{ src: o.src }]);
+  const st = el('button', '', '■'); st.onclick = stop;
+  btns.append(now); if (DATA.hasOriginal) btns.append(orig); btns.append(st); c.appendChild(btns);
+  return c;
+}
+
+function apply() {
+  document.querySelectorAll('#bar [data-f]').forEach(b => b.setAttribute('aria-pressed', b.dataset.f === filter));
+  DATA.rows.forEach(r => {
+    const c = document.querySelector(`.card[data-id="${r.id}"]`); const w = wantOf(r);
+    const show = filter === 'all' || (filter === 'want' && ['new', 'replace'].includes(w)) || (filter === 'noown' && r.state !== 'own') || (filter === 'check' && w === 'check');
+    c.style.display = show ? '' : 'none';
+  });
+  document.querySelectorAll('section').forEach(s => { s.style.display = [...s.querySelectorAll('.card')].some(c => c.style.display !== 'none') ? '' : 'none'; });
+}
+
+function render() {
+  const f = DATA.flags;
+  document.getElementById('lead').textContent =
+    `게임 순간 ${DATA.rows.length}개마다 지금 나는 소리와 필요한 느낌을 모았다.` +
+    (DATA.hasOriginal ? ` 원작 소리 스위치 ${f.useOriginal ? '켜짐' : '꺼짐'}.` : '') + ` 임시 삐 소리 ${f.useTempTones ? '켜짐' : '꺼짐'}.` +
+    (DATA.updated ? ` 필요한 느낌 초안 ${DATA.updated}.` : ' 필요한 느낌 초안 없음(sound_needs.json).') + (DATA.note ? ' ' + DATA.note : '');
+  document.getElementById('sources').textContent = '읽은 곳: ' + (DATA.sources || []).join(' · ') + '.';
+  const sum = document.getElementById('sum');
+  Object.keys(STATE).forEach(k => sum.appendChild(el('span', 'badge ' + k, `${STATE[k]} ${DATA.rows.filter(r => r.state === k).length}`)));
+  const main = document.getElementById('main');
+  DATA.groups.forEach(g => {
+    const rows = DATA.rows.filter(r => r.group === g); if (!rows.length) return;
+    const s = el('section'); s.appendChild(el('h2', '', `${g} (${rows.length})`));
+    const grid = el('div', 'grid'); rows.forEach(r => grid.appendChild(card(r))); s.appendChild(grid); main.appendChild(s);
+  });
+  document.querySelectorAll('#bar [data-f]').forEach(b => b.onclick = () => { filter = b.dataset.f; apply(); });
+  document.getElementById('copy').onclick = async () => {
+    const lines = DATA.rows.filter(r => ['new', 'replace'].includes(wantOf(r))).map(r => {
+      const n = notes[r.id] || {}, d = r.need || {};
+      const parts = [`${r.id}(${r.label}): ${WANT[wantOf(r)]}`, `지금 ${STATE[r.state]}${r.layers.length ? ' ' + r.layers.map(l => l.file.split('/').pop()).join('+') : ''}`];
+      if (d.feel) parts.push('초안 느낌: ' + d.feel);
+      if (n.memo) parts.push('내 메모: ' + n.memo);
+      if (d.length) parts.push('길이 ' + d.length);
+      return parts.join(' | ');
+    });
+    const txt = '[소리 찾기 요청]\n' + (lines.length ? lines.join('\n') : '(없음)');
+    try { await navigator.clipboard.writeText(txt); document.getElementById('copied').textContent = `${lines.length}개 복사함`; }
+    catch (e) { prompt('복사해서 붙여 넣기', txt); }
+  };
+  apply();
+}
+render();
+</script>
+</body>
+</html>

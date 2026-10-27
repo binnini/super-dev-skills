@@ -53,7 +53,7 @@ BigHunter(9/29~10/13) · TombOfTheMask(10/14~10/27 마감)를 회고하고 다�
 ### 지금 · 마감(10/27) 전
 - [ ] TotM 마감 작업(이 저장소 밖)
 - [ ] 자석 오라: 비교 페이지에서 ☆ · 결정 → 고른 것을 TotM에 넣을지 정하기. 지금 게임의 자석 색은 분홍(`PowerupScreenFx.magnetColor` #FF4FA0)이고 CONCEPT에서 노랑 · 흰색은 수집물 색이라 헷갈릴 수 있음 → 같이 결정
-- [ ] 각 게임 저장소에 이 스킬 저장소를 넣기(README "시작하기 B"). TotM은 `.claude/skills/web-sound-search` 복사본을 지움
+- [ ] 각 게임 저장소에 이 스킬 저장소를 넣기(README "시작하기 B"). TotM은 10-27 완료(assets 0.1.1에 로컬 복사본의 현황 페이지 등을 옮긴 뒤 복사본을 지움, TotM 커밋 전). BigHunter 남음
 
 ### 10/27 마감 뒤 이틀 (TOOLKIT 8장)
 - [ ] project-template + 플레이북 v2(테스트 계층 · `run.ps1 -Changed`)

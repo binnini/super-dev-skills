@@ -1,6 +1,6 @@
 {
   "name": "assets",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "웹에서 효과음 · 이펙트(VFX) 후보를 찾아 비교 페이지로 고르고 게임에 넣는 스킬",
   "author": {
     "name": "pudin"
