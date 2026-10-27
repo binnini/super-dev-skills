@@ -8,6 +8,7 @@ BigHunter(9/29~10/13) · TombOfTheMask(10/14~10/27) 회고에서 정한 다음 �
 |---|---|
 | [docs/HANDOFF.md](docs/HANDOFF.md) | **다른 환경에서 이어서 할 때 먼저 읽는 것.** 정한 것 · 다음 할 일 · 시작 프롬프트 |
 | [docs/TOOLKIT.md](docs/TOOLKIT.md) | 작업 도구함: 다음 과제에 들고 갈 패키지 · 스킬 · 환경 · 테스트 · 협업 방식 |
+| [docs/KIT.md](docs/KIT.md) | 키트 파일 목록: 템플릿 · 패키지 · 스킬 · 환경 묶음마다 TotM · BigHunter의 어떤 파일을 어떻게 넘기나, 넘기지 않는 것, 새 과제 시작 묶음 |
 | [CLAUDE.md](CLAUDE.md) | 이 저장소에서 스킬을 고칠 때의 규칙(Claude가 자동으로 읽음) |
 | [CHANGELOG.md](CHANGELOG.md) | 바뀐 것 |
 
