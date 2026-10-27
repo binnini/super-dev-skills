@@ -9,7 +9,7 @@ description: 웹(itch.io · OpenGameArt)에서 도트 이펙트(VFX) 후보를 �
 
 ## 0. 프로필 읽기
 
-프로젝트의 `.claude/skill-profile.yaml`을 먼저 읽는다(형식은 이 스킬 저장소 `templates/skill-profile.yaml`). 쓰는 값: `cell_px`(1칸 그림 px) · `character`(1칸 표시 이름) · `work_dir`(git 무시 작업 폴더) · `python` · `vfx.background`(무대 색) · `vfx.role_colors`(역할 색 문서) · `vfx.art_dir` · `vfx.ppu` · `docs.*`. 파일이 없으면 템플릿을 보여 주고 채워 달라고 한다.
+프로젝트의 `.claude/skill-profile.yaml`을 먼저 읽는다(형식은 이 스킬 저장소 `templates/skill-profile.yaml`). 쓰는 값: `cell_px`(1칸 그림 px) · `character`(1칸 표시 이름) · `work_dir`(git 무시 작업 폴더) · `python` · `vfx.background`(무대 색) · `vfx.role_colors`(역할 색 문서) · `vfx.art_dir` · `vfx.ppu` · `docs.*`. 파일이 없으면 템플릿을 보여 주고 채워 달라고 한다. 아래 `<python>`은 프로필 값, `<skill_dir>`는 이 SKILL.md가 있는 폴더이고, 스크립트는 프로젝트 루트에서 돌린다(`<skill_dir>/scripts/…`).
 
 ## 1. 무엇을 찾는지 정하기
 
@@ -43,7 +43,7 @@ description: 웹(itch.io · OpenGameArt)에서 도트 이펙트(VFX) 후보를 �
 `work_dir/vfx/<key>_candidates.json`을 쓰고(형식은 [scripts/build_page.py](scripts/build_page.py) 맨 위) 만든다.
 
 ```bash
-<python> .../web-vfx-search/scripts/build_page.py <work_dir>/vfx/<key>_candidates.json
+<python> <skill_dir>/scripts/build_page.py <work_dir>/vfx/<key>_candidates.json
 ```
 
 - 순서: 직접 만든 것 · 0원 가능 중 조건에 가장 맞는 것부터 `rank`. 유료는 `reference`에만.
@@ -60,7 +60,7 @@ description: 웹(itch.io · OpenGameArt)에서 도트 이펙트(VFX) 후보를 �
 
 1. **받은 에셋**이면 내려받기 허락(이름 · 출처 · 크기)을 받고 원본을 그대로 받는다.
 2. **손질**: 사용자가 원하면 간단한 것만 한다 — `atlas_tools.py clear --radius N`(가운데 지우기, 10-24 일렁이는 테두리). 그림을 새로 그리는 손질은 디자이너 몫으로 남긴다.
-3. **묶음**: README(다시 만드는 설정 · 시드, 크기 칸, Unity 임포트 값 = Multiple · Grid 셀 · PPU `vfx.ppu` · Point · 압축 없음, 사용 조건)를 쓰고 `atlas_tools.py pack`으로 zip을 만들어 파일로 보낸다. 원본과 손질본을 둘 다 넣는다.
+3. **묶음**: [references/readme_template.txt](references/readme_template.txt)의 `<…>`를 채워 README(다시 만드는 설정 · 시드, 크기 칸, Unity 임포트 값 = Multiple · Grid 셀 · PPU `vfx.ppu` · Point · 압축 없음, 사용 조건)를 쓰고 `atlas_tools.py pack`으로 zip을 만들어 파일로 보낸다. 원본과 손질본을 둘 다 넣는다.
 
 ## 7. 게임에 넣기(사용자가 요청할 때)
 

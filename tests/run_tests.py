@@ -56,6 +56,21 @@ for entry in market['plugins']:
         body = open(os.path.join(sdir, name, 'SKILL.md'), encoding='utf-8').read()
         check('Assets/_Project' not in body.split('---', 2)[2].replace('예:', ''),
               f'{name}: 본문에 프로젝트 경로를 적지 않음(프로필 키로)')
+        # 번들 파일: 스킬 안 다른 파일이 이름으로 가리키는지(안내 없는 파일은 Claude가 모른다), 옛 경로 · 맨 python이 없는지
+        files = {}
+        for dp, _, fs in os.walk(os.path.join(sdir, name)):
+            for f in fs:
+                if f.endswith(('.md', '.py', '.js', '.html', '.txt')):
+                    files[os.path.relpath(os.path.join(dp, f), os.path.join(sdir, name)).replace('\\', '/')] = \
+                        open(os.path.join(dp, f), encoding='utf-8').read()
+        for rel, text in files.items():
+            if rel == 'SKILL.md':
+                continue
+            base = os.path.basename(rel)
+            check(any(base in t for r, t in files.items() if r != rel), f'{name}/{rel}: 스킬 안 다른 파일이 가리킴')
+        for rel, text in files.items():
+            bad = [m.group(0).strip() for m in re.finditer(r'\.claude/skills/|Assets/_Project|(?:^|[\s`(\'"])python3? -[Im]\b', text, re.M)]
+            check(not bad, f'{name}/{rel}: 옛 경로 · 맨 python 없음(<skill_dir> · <python> 사용) {bad[:3]}')
 
 # 3 문법
 for dp, _, fs in os.walk(os.path.join(ROOT, 'plugins')):

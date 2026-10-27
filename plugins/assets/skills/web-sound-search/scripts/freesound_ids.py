@@ -1,6 +1,6 @@
 """Freesound 소리 id 목록 → 후보 항목(JSON). 브라우저에서 고른 id만 넘기면 각 소리 페이지에서 제목 · 올린 사람 · 길이 · 라이선스 · 미리듣기를 읽는다.
 
-실행: python -I .claude/skills/web-sound-search/scripts/freesound_ids.py <ids.json> <out.json>
+실행(프로젝트 루트에서): <python> <skill_dir>/scripts/freesound_ids.py <ids.json> <out.json>
   ids.json = {"<key>": ["123", "456", ...], ...}  → out.json = {"<key>": [후보 항목, ...], ...}
 Freesound는 셸(curl/urllib)로 읽힌다(10-23 확인). Pixabay는 403이라 브라우저(references/extract.md)로만.
 """

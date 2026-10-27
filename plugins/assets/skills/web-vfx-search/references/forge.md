@@ -3,6 +3,8 @@
 - 저장소: https://github.com/GameDev-Toolkit/pixel-ability-fx-generator (Apache 2.0, 빌드 없는 JS)
 - 소개: https://announcerua.itch.io/pixel-ability-fx-forge
 
+`<python>`은 프로필 값(Windows의 `python`은 Microsoft Store 스텁일 수 있어 그대로 쓰지 않는다), `<skill_dir>`는 web-vfx-search 폴더다.
+
 ## 준비(처음 한 번)
 ```bash
 git clone --depth 1 https://github.com/GameDev-Toolkit/pixel-ability-fx-generator <work_dir>/_forge
@@ -10,10 +12,11 @@ cd <work_dir> && npm i -D playwright && npx playwright install chromium   # 이�
 ```
 
 ## 돌리기
+`forge_gen.js`는 playwright를 실행한 폴더에서 찾으므로 `<work_dir>`에서 돌린다(나머지 경로는 `<work_dir>` 기준).
 ```bash
-python -m http.server 8731 --directory <work_dir>/_forge   # 백그라운드
-node .../web-vfx-search/scripts/forge_gen.js jobs.json <work_dir>/vfx/<key>/gen
-python -I .../atlas_tools.py contact <work_dir>/vfx/<key>/gen_view.png <work_dir>/vfx/<key>/gen/*.png --unit <cell_px>
+<python> -m http.server 8731 --directory <work_dir>/_forge   # 백그라운드
+cd <work_dir> && node <skill_dir>/scripts/forge_gen.js jobs.json vfx/<key>/gen
+<python> <skill_dir>/scripts/atlas_tools.py contact <work_dir>/vfx/<key>/gen_view.png <work_dir>/vfx/<key>/gen/*.png --unit <cell_px>
 ```
 `jobs.json` 예: `[{"name":"s201","family":"aura","power":"solar","element":"holy","canvas":128,"frames":24,"seed":201}, ...]` — 시드만 바꿔 16~24개.
 

@@ -1,10 +1,11 @@
 // Pixel Ability-fx Forge를 화면 없이 돌려 시트(atlas)를 여러 장 내보낸다.
-// node forge_gen.js <jobs.json> <out_dir> [forge_url]
+// <work_dir>에서(playwright를 설치한 폴더): node <skill_dir>/scripts/forge_gen.js <jobs.json> <out_dir> [forge_url]
 //   jobs.json: [{ "name": "s215", "family": "aura", "power": "solar", "element": "holy",
 //                 "canvas": 128, "frames": 24, "seed": 215 }, ...]
-//   forge_url 기본값 http://localhost:8731/index.html (forge 폴더를 python -m http.server 8731 로 띄움)
+//   forge_url 기본값 http://localhost:8731/index.html (forge 폴더를 <python> -m http.server 8731 로 띄움)
 // 모양(motif)은 시드가 정한다. motifSelect를 바꿔도 시드가 덮어쓰니 시드를 여러 개 돌려 고른다(10-24 확인).
-const { chromium } = require('playwright');
+// 이 파일은 플러그인 캐시에 있으므로 playwright는 이 파일 옆이 아니라 실행한 폴더(cwd)에서 찾는다
+const { chromium } = require(require.resolve('playwright', { paths: [process.cwd(), __dirname] }));
 const fs = require('fs');
 const path = require('path');
 
@@ -15,7 +16,7 @@ const set = (p, id, v) => p.evaluate(([id, v]) => {
 
 (async () => {
   const [jobsFile, outDir, url = 'http://localhost:8731/index.html'] = process.argv.slice(2);
-  if (!jobsFile || !outDir) { console.error('node forge_gen.js <jobs.json> <out_dir> [forge_url]'); process.exit(2); }
+  if (!jobsFile || !outDir) { console.error('node <skill_dir>/scripts/forge_gen.js <jobs.json> <out_dir> [forge_url]'); process.exit(2); }
   const jobs = JSON.parse(fs.readFileSync(jobsFile, 'utf8'));
   fs.mkdirSync(outDir, { recursive: true });
   const b = await chromium.launch();

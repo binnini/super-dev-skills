@@ -1,6 +1,6 @@
 """후보 파일(json) → VFX 비교 페이지(html 한 장, 그림은 안에 넣음).
 
-python -I build_page.py <work>/<key>_candidates.json [out.html]
+<python> <skill_dir>/scripts/build_page.py <work_dir>/vfx/<key>_candidates.json [out.html]
 
 후보 파일 형식(그림 경로는 json 파일 기준):
 {

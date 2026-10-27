@@ -1,6 +1,6 @@
 """여러 순간의 후보 페이지를 묶는 목차 페이지(웹 소리 찾기 스킬).
 
-실행: python -I .claude/skills/web-sound-search/scripts/build_index.py <out.html> <제목> <a_candidates.json> <b_candidates.json> ...
+실행(프로젝트 루트에서): <python> <skill_dir>/scripts/build_index.py <out.html> <제목> <a_candidates.json> <b_candidates.json> ...
   각 후보 파일의 key · title · purpose · current(지금 게임 소리, 선택) · 후보 수를 카드로 늘어놓고,
   같은 브라우저의 localStorage(<key>_stars · <key>_choice)를 읽어 ☆ 수 · 결정을 보여 준다(페이지는 같은 서버 · 같은 폴더에 둔다).
 """

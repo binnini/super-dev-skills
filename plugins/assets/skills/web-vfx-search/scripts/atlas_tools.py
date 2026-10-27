@@ -1,10 +1,11 @@
 """시트(atlas) PNG 다루기: 미리보기 GIF, 크기 재기, 한눈 시트, 가운데 지우기, 전달 묶음.
 
-python -I atlas_tools.py gif     <atlas.png> <out.gif> [--cell 128] [--ms 60]
-python -I atlas_tools.py extent  <atlas.png> [--cell 128] [--unit 24]
-python -I atlas_tools.py contact <out.png> <atlas.png>... [--cell 128] [--unit 24] [--bg #0b1420]
-python -I atlas_tools.py clear   <atlas.png> <out.png> --radius 15 [--cell 128]
-python -I atlas_tools.py pack    <name> <out_dir> --atlas a.png [--cleared b.png] --readme readme.txt [--cell 128] [--ms 60]
+<python> <skill_dir>/scripts/atlas_tools.py gif     <atlas.png> <out.gif> [--cell 128] [--ms 60]
+<python> <skill_dir>/scripts/atlas_tools.py extent  <atlas.png> [--cell 128] [--unit 24]
+<python> <skill_dir>/scripts/atlas_tools.py contact <out.png> <atlas.png>... [--cell 128] [--unit 24] [--bg #0b1420]
+<python> <skill_dir>/scripts/atlas_tools.py clear   <atlas.png> <out.png> --radius 15 [--cell 128]
+<python> <skill_dir>/scripts/atlas_tools.py pack    <name> <out_dir> --atlas a.png [--cleared b.png] --readme readme.txt [--cell 128] [--ms 60]
+  (<python> = 프로필 값, <skill_dir> = web-vfx-search 폴더)
 
 시트는 왼쪽 위부터 가로로 읽는 칸 격자(Forge: 1024 x 384 = 8 x 3, 128 px)로 본다.
 알파 60 이하는 투명으로 친다(GIF는 1비트 투명이라 미리보기 전용).

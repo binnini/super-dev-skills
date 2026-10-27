@@ -44,6 +44,7 @@ description: 웹(Freesound · Pixabay)에서 게임 효과음 · 배경음 후�
 내장 브라우저로 Freesound · Pixabay를 한 번 연 뒤 [references/extract.md](references/extract.md)의 코드를 `javascript_tool`로 돌린다(검색어 여러 개를 한 번에, 결과 표를 꺼내 훑음).
 
 - 브라우저 도구 한 번은 45 s 안에 끝나야 한다(패널이 숨겨져 있으면 더 느리다). 검색어는 한 번에 3~4개씩 나눠 돌리고, 결과는 그 사이트의 `localStorage`에 모아 둔다(10-23 1묶음: 순간 6개를 이렇게 나눠 훑음).
+- **Freesound를 셸에서 넓게**: 순간 · 검색어가 많으면 [scripts/freesound_search.py](scripts/freesound_search.py)로 브라우저 없이 훑는다(`<python> <skill_dir>/scripts/freesound_search.py <work_dir>/<묶음>_plan.json <work_dir>/<묶음>_fs.json`). 여러 검색어에 걸린 것 · 앞 순위 · 내려받기 많은 것부터 남기고, 길이 · 엉뚱한 이름(음악 · 루프 · 목소리 등)으로 거른다. 계속 나는 소리(지속음 · 비행 물살)는 그 순간에 `"loop": true`를 줘 이름 거르기를 끈다. 이름만 보고 거르므로 남은 목록을 다시 훑어 뺀다.
 - **여러 순간을 한꺼번에**: Freesound는 브라우저에서 고른 **id만** 꺼내 [scripts/freesound_ids.py](scripts/freesound_ids.py)로 셸에서 제목 · 올린 사람 · 길이 · 라이선스 · 미리듣기를 채운다(옮겨 적지 않아도 된다). Pixabay는 셸에서 403이라 브라우저에서 고른 것의 미리듣기 · 진짜 길이까지 읽어 짧은 배열(주소 꼬리 · 제목 · 길이 · mp3 꼬리)로 꺼낸다.
 
 후보 고르기(사이트마다 20~25개까지):

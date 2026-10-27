@@ -1,7 +1,7 @@
 """소리 후보 JSON → 비교 페이지 HTML(웹 소리 찾기 스킬).
 
 실행(프로젝트 루트에서): <python> <skill_dir>/scripts/build_page.py <candidates.json> [out.html]
-  out을 빼면 references/web/<key>_candidates.html(프로필 work_dir가 다르면 out을 준다).
+  out을 빼면 후보 파일 옆 <key>_candidates.html(보통 <work_dir>, git 무시).
 
 candidates.json 형식(SKILL.md "후보 파일"):
 {
@@ -66,13 +66,13 @@ def main():
     problems = check(cfg)
     for p in problems:
         print("확인:", p, file=sys.stderr)
-    out = sys.argv[2] if len(sys.argv) > 2 else os.path.join(ROOT, "references", "web", f'{cfg["key"]}_candidates.html')
+    out = sys.argv[2] if len(sys.argv) > 2 else os.path.join(os.path.dirname(os.path.abspath(sys.argv[1])), f'{cfg["key"]}_candidates.html')
     html = open(TEMPLATE, encoding="utf-8").read().replace("/*CONFIG*/null", json.dumps(cfg, ensure_ascii=False))
     os.makedirs(os.path.dirname(out), exist_ok=True)
     open(out, "w", encoding="utf-8").write(html)
     rel = os.path.relpath(out, ROOT).replace("\\", "/")
     print(f"{out}: 후보 {len(cfg['candidates'])}개, 확인 {len(problems)}건")
-    if rel.startswith("references/web/"):
+    if not rel.startswith(".."):  # 저장소 루트를 여는 서버로 연다
         print(f"열기: http://localhost:<sound.preview_server port>/{rel}")
 
 
