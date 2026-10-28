@@ -79,6 +79,7 @@ super-dev-skills/
 | 플러그인 | 스킬 · 훅 | 상태 |
 |---|---|---|
 | `assets` | `web-sound-search`, `web-vfx-search` | 있음(0.1.0) |
+| `art` | `imagegen`(사내 이미지 생성 플랫폼 + 프로젝트 스타일 팩으로 시안 뽑기 · 기록) | 있음(0.1.0, 10-28) |
 | `measure` | `video-measure`(영상 프레임 측정. reference-frame-sheet · reference-anim-sheet를 합침) | 다른 기기에서 만들 예정 |
 | `ops` | `bottleneck-report`(세션 시간 · 에디터 대기 집계) | 예정 |
 | `editor-lease` | PreToolUse 훅(Unity 에디터 잠금) | 예정. 훅은 켜면 바로 동작하므로 따로 켜고 끄게 별도 플러그인 |

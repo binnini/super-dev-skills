@@ -3,7 +3,8 @@
 1. 구조: 마켓플레이스 항목 ↔ 플러그인 이름 · 버전, SKILL.md 머리(name = 폴더 이름, description 1024자 이하)
 2. 바뀐 것: 플러그인 버전마다 CHANGELOG 줄이 있는지
 3. 문법: scripts/*.py 컴파일, *.js는 node --check(node가 있으면)
-4. 동작: web-vfx-search 스크립트를 작은 가짜 시트로 끝까지 돌림, web-sound-search 비교 페이지 · 현황 페이지 만들기
+4. 동작: web-vfx-search 스크립트를 작은 가짜 시트로 끝까지 돌림, web-sound-search 비교 페이지 · 현황 페이지 만들기,
+   imagegen 기록 · 고르기
 """
 import json, os, py_compile, re, shutil, subprocess, sys, tempfile
 
@@ -177,6 +178,39 @@ check(code == 0 and st == {'Dash': 'own', 'Dot': 'temp'} and 'Land: 에셋에 �
 os.remove(os.path.join(tmp, '.claude', 'skill-profile.yaml'))
 code, out = run([PY, '-I', os.path.join(S, 'build_status.py')], cwd=tmp)
 check(code != 0 and 'skill-profile.yaml' in out, 'sound build_status: 프로필이 없으면 멈춤')
+shutil.rmtree(tmp)
+
+# art:imagegen 기록 · 고르기: 가짜 프로젝트(프로필 · 스타일 팩 · 프롬프트 · 참조)로 record → list → pick
+G = os.path.join(ROOT, 'plugins', 'art', 'skills', 'imagegen', 'scripts', 'imagegen_log.py')
+tmp = tempfile.mkdtemp()
+put('.claude/skill-profile.yaml', 'work_dir: web\nimagegen:\n  style_pack: docs/pack.json\n  out_dir: design/gen   # 주석\n'
+    '  draft_dir: art/_Draft\n  original_refs: draft_only\n')
+put('docs/pack.json', json.dumps({'version': 2}))
+put('web/p.txt', 'UI mockup "웨이브 2/3"\n')
+put('refs/a.png', 'x')
+put('refs/orig.png', 'x')
+put('dl/out.png', 'img')
+L = [PY, '-I', G]
+code, out = run(L + ['record', '--key', 'ui_radar', '--purpose', 'draft', '--model', 'GEM 3.1', '--ratio', '9:16',
+                     '--prompt-file', 'web/p.txt', '--ref', 'refs/a.png', '--original-ref', 'refs/orig.png'], cwd=tmp)
+rec = os.path.join(tmp, 'web', 'imagegen', 'ui_radar', '1.json')
+e = json.load(open(rec, encoding='utf-8')) if code == 0 and os.path.exists(rec) else {}
+check(e.get('style_pack_version') == 2 and e.get('refs') == ['refs/a.png'] and e.get('original_refs') == ['refs/orig.png']
+      and '웨이브' in e.get('prompt', ''), f'imagegen record: {out.strip()[:80]}')
+code, out = run(L + ['record', '--key', 'ui_radar', '--purpose', 'game', '--model', 'm', '--ratio', '1:1',
+                     '--prompt-file', 'web/p.txt', '--original-ref', 'refs/orig.png'], cwd=tmp)
+check(code != 0 and not os.path.exists(os.path.join(tmp, 'web', 'imagegen', 'ui_radar', '2.json')),
+      'imagegen record: draft_only 규칙이면 game 용도 원작 참조를 막음')
+code, out = run(L + ['list'], cwd=tmp)
+check(code == 0 and 'ui_radar #1' in out and 'GEM 3.1' in out, f'imagegen list: {out.strip()[:80]}')
+code, out = run(L + ['pick', '--key', 'ui_radar', '--id', '1', '--file', 'dl/out.png'], cwd=tmp)
+picked = os.path.join(tmp, 'design', 'gen', 'ui_radar_1.png')
+check(code == 0 and os.path.exists(picked) and json.load(open(rec, encoding='utf-8'))['picked'] == ['design/gen/ui_radar_1.png']
+      and len(open(os.path.join(tmp, 'web', 'imagegen', 'log.jsonl'), encoding='utf-8').read().splitlines()) == 2,
+      f'imagegen pick: {out.strip()[:80]}')
+os.remove(os.path.join(tmp, '.claude', 'skill-profile.yaml'))
+code, out = run(L + ['list'], cwd=tmp)
+check(code != 0 and 'skill-profile.yaml' in out, 'imagegen: 프로필이 없으면 멈춤')
 shutil.rmtree(tmp)
 
 print(f"\n{'FAIL ' + str(len(fails)) if fails else 'ALL PASS'}")

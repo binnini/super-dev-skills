@@ -1,5 +1,14 @@
 # 바뀐 것
 
+## art 0.1.0 · 2026-10-28
+- 새 플러그인 `art`, 스킬 `art:imagegen`(CrazyArena 10-28 UI 목업 2장을 뽑은 방법).
+  - 절차: 프로필 · 스타일 팩 읽기 → 브리프 → 참조 고르기(원작 그림은 `imagegen.original_refs` 규칙) → 프롬프트 조립 → 확인받기 → Claude in Chrome 조작 → 기록 → 고르기 → 넣기.
+  - `references/site.md`: 사이트 화면 · 순서 · 함정(앱 안 브라우저는 참조 업로드 불가, `file_upload`는 세션이 읽는 폴더만, 설정 창 닫은 뒤 비율이 "자동"으로 돌아감).
+  - `references/style_pack.md`: 프로젝트 스타일 팩(JSON) 형식과 갱신 절차. approved는 승인자만.
+  - `scripts/imagegen_log.py`: `record`(프롬프트 · 모델 · 참조 · 스타일 팩 버전 기록, 원작 참조 규칙 검사) · `list` · `pick`(고른 것을 용도별 폴더로 복사).
+- `templates/skill-profile.yaml`: `imagegen:` 절(`site` · `model` · `style_pack` · `out_dir` · `draft_dir` · `original_refs` · `approvers`).
+- `tests/run_tests.py`: imagegen_log를 가짜 프로젝트로 record → list → pick, 원작 참조 규칙 · 빈 프로필에서 멈추는지.
+
 ## 저장소 · 2026-10-27
 - `docs/KIT.md` 새로: 키트 묶음(A 템플릿 · B 패키지 · C 스킬 · D 환경)마다 TotM · BigHunter의 출처 파일, 다루는 법(그대로 · 양식 · 떼어 냄 · 참고), 순위, 넘기지 않는 것, 새 과제 시작 묶음. README · TOOLKIT · HANDOFF에서 연결.
 - `docs/TOOLKIT.md` 8장 "만드는 순서"를 1 · 2 · 3순위 표로 다시 씀(TotM 근거 열 추가). 7장 1일차의 패키지 · 잠금 훅 줄을 순위에 맞춤.

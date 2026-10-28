@@ -26,6 +26,15 @@ vfx:
   background: "#0b1620"           # 게임 배경에 가까운 무대 색
   role_colors: docs/CONCEPT.md    # 역할 색(수집물 · 위험 등) 문서
 
+imagegen:                         # art:imagegen(사내 이미지 생성). 쓰지 않으면 비움
+  site:                           # 워크스페이스 주소(사내 주소라 스킬 저장소에 적지 않는다)
+  model: GEM 3.1                  # 기본 모델
+  style_pack: docs/art/style_pack.json   # 스타일 팩(형식: art/skills/imagegen/references/style_pack.md)
+  out_dir: game_design/images/generated  # 고른 시안(draft 용도, 커밋)
+  draft_dir:                      # 고른 게임 임시 그림(game 용도, 예: 아트 폴더 아래 _Draft)
+  original_refs: never            # 원작 그림 참조: never | draft_only(시안에만) | allow
+  approvers:                      # 스타일 팩 approved를 켜는 사람(예: 개발 · 디자이너 이름)
+
 docs:
   rules: docs/GDD.md
   decisions: docs/SYSTEM.md
