@@ -16,7 +16,7 @@ TOOLKIT.md의 산출물(템플릿 · 패키지 · 스킬 · 환경)을 **실제 
 | 묶음 | 형태 | 받는 곳 |
 |---|---|---|
 | A. project-template | GitLab 템플릿 저장소 하나 | 새 과제 1일차에 복제 |
-| B. Unity 패키지 | UPM 패키지(공용 원본 폴더 `_shared` → 각 프로젝트 `Packages/` 또는 git URL) | 새 과제 `Packages/manifest.json` |
+| B. Unity 패키지 | UPM 패키지(원본 저장소 → 각 프로젝트 `Packages/`에 embedded 또는 git URL. 옛 PC의 공용 폴더 `D:\GameProject\_shared`는 지금 PC에 없음) | 새 과제 `Packages/manifest.json` |
 | C. super-dev-skills | 이 저장소(플러그인 마켓플레이스) | 새 과제 `.claude/settings.json` 두 줄 |
 | D. PC 환경 | 설치 목록(저장소 밖) | 새 PC · 디자이너 PC |
 
@@ -82,7 +82,7 @@ TOOLKIT.md의 산출물(템플릿 · 패키지 · 스킬 · 환경)을 **실제 
 
 | 패키지 | 넣을 파일(출처) | 다루는 법 | 순위 |
 |---|---|---|---|
-| `com.pudin.webgl-mobile` | 공용 원본 `_shared`(TotM `Packages/com.pudin.webgl-mobile`에 임베드된 사본) | 그대로(있음) | 1 |
+| `com.pudin.webgl-mobile` | TotM `Packages/com.pudin.webgl-mobile`(embedded, git에 있는 지금의 원본. 옛 `_shared` 원본은 10-28에 없음 확인) | 그대로(있음). 나중에 독립 저장소로 빼면 git URL로 | 1 |
 | `com.pudin.tuning` | TotM `Scripts/Runtime/Debugging/FeelTuner.cs` · `LaunchTuner.cs`(FEEL TUNE · LAUNCH TUNE 화면 패널), `Scripts/Editor/FxTunerWindow.cs`(SO 묶음 편집 창), `tools/eval/regression/gdd_so_match.cs`. BH `Scripts/Dev/PhysicsLabTuning.cs` · `Scripts/Editor/PhysicsLabWindow.cs`(물리 랩 튜닝 탭) | 참고 + 떼어 냄: URP Rendering Debugger에 SO 탭을 자동으로 붙이는 패널로 새로 짠다(★ · ● · A/B · JSON 저장) | 1 |
 | `com.pudin.feel` | TotM `Scripts/Runtime/Core/Haptics.cs` + `Plugins/WebGL/Haptics.jslib`(Android VibrationEffect · 웹 진동 길이 환산 10-26), `Scripts/Runtime/Gameplay/FeelFeedback.cs`, `Scripts/Runtime/Data/FeedbackTuning.cs`. BH `Scripts/Core/TimeEffects.cs`(히트스톱) · `Scripts/Core/CameraShaker.cs` · `Scripts/Core/Haptics.cs` · `Scripts/Feedback/HapticHooks.cs` · `Scripts/Data/HapticTuning.cs` | 떼어 냄: 순간 하나 = FeelPreset 에셋 하나로 합침. DOTween 의존 방식을 먼저 정함 | 2 |
 | feel 안 FX 배치 도구 | TotM `Scripts/Runtime/Gameplay/FxPlacementGuide.cs`, `Prefabs/Fx/Combo/`(배치 프리팹 예), `Scripts/Runtime/Data/Fx/FxSetting.cs` · `FxLibrary.cs`(이펙트별 SO), `docs/FX_TUNING.md` "배치 프리팹 고치기". BH `Scripts/Feedback/VfxAnchors.cs` · `Scripts/Data/VfxAnchorSet.cs` · `Scripts/Editor/VfxAnchorNameDrawer.cs` · `Scripts/Data/PlayerFxSheet.cs` | 떼어 냄: 배치 프리팹 + `fx_*` 소켓 + 씬 뷰 핸들. 이펙트별 SO 51개(`Data/Fx/*`)는 TotM 연출이라 참고 | 2 |

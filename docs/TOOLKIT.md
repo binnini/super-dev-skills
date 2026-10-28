@@ -41,7 +41,7 @@ BigHunter · TombOfTheMask 회고에서 정한 것(2026-10-24). 다음 과제에
 
 ## 2. Unity 패키지
 
-모두 UPM 패키지다. 공용 원본 폴더(`D:\GameProject\_shared\`)에서 고치고 각 프로젝트 `Packages/`에 넣거나, GitLab 저장소를 git URL로 추가한다.
+모두 UPM 패키지다. 원본에서 고치고 각 프로젝트 `Packages/`에 넣거나(embedded), GitLab 저장소를 git URL로 추가한다. 옛 PC의 공용 원본 폴더(`D:\GameProject\_shared\`)는 지금 PC에 없다(10-28 확인). webgl-mobile의 지금 원본은 TotM 저장소의 `Packages/com.pudin.webgl-mobile`이고, 패키지가 늘면 패키지마다 GitLab 저장소로 빼 git URL로 받는 쪽이 맞다.
 
 ### com.pudin.webgl-mobile — 있음
 WebGL 모바일 템플릿 · 설정, URL 쿼리, Unity Play 업로드. 그대로 추가해서 저녁 빌드 → 폰 브라우저로 확인한다.
