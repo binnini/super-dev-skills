@@ -1,5 +1,14 @@
 # 바뀐 것
 
+## art 0.1.1 · 2026-11-23
+- `art:imagegen`: CrazyArena(10-29 ~)에서 쓴 것을 옮김.
+  - `scripts/imagegen_log.py collect`: Chrome이 받은 `<epoch ms>.jpg` 최신 N장을 `<work_dir>/imagegen/<key>/<id>_a, _b …`로 옮김(CrazyArena `references/web/imagegen/_tools/collect.py`).
+  - `scripts/key_fit.py`: 초록 배경(#00FF00) JPG를 투명 PNG로 키잉하고 캔버스에 맞춤. 아래 여백 기본값을 캔버스 높이 / 16으로, 세로로도 넘치지 않게 고침.
+  - `references/site.md`: 내려받기 위치 · 결과 크기(JPG, 알파 없음) · 사용량 · 설정 창은 토글로 닫기 · 받기와 옮기기를 한 메시지에 섞지 않기 등 10-29 함정.
+  - SKILL.md 5 · 8단계에 초록 배경 · collect · key_fit 순서를 적음.
+- `tests/run_tests.py`: collect가 최신 N장만 옮기는지, 장수가 모자라면 멈추는지.
+- `docs/KIT.md`: art 줄, CLI beta.8 새 이름, CrazyArena 후보(글 · 시나리오 편집 페이지, 밸런스 봇), 메모리는 전역 CLAUDE.md로 옮긴다는 줄.
+
 ## art 0.1.0 · 2026-10-28
 - 새 플러그인 `art`, 스킬 `art:imagegen`(CrazyArena 10-28 UI 목업 2장을 뽑은 방법).
   - 절차: 프로필 · 스타일 팩 읽기 → 브리프 → 참조 고르기(원작 그림은 `imagegen.original_refs` 규칙) → 프롬프트 조립 → 확인받기 → Claude in Chrome 조작 → 기록 → 고르기 → 넣기.

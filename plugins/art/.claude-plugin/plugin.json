@@ -1,6 +1,6 @@
 {
   "name": "art",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "사내 이미지 생성 플랫폼으로 UI · 캐릭터 · 아이콘 시안을 프로젝트 스타일 팩에 맞춰 뽑고 기록하는 스킬",
   "author": {
     "name": "pudin"

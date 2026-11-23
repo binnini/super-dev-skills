@@ -47,7 +47,8 @@ description: 사내 이미지 생성 플랫폼(웹)에서 게임 UI 화면 · �
 ## 5. 사이트 조작
 
 **Claude in Chrome**(사용자의 Chrome)으로 한다. 앱 안 브라우저는 참조 이미지를 올릴 수 없다. 화면 순서와 함정은 [references/site.md](references/site.md)를 따른다.
-- 요약: 워크스페이스 열기 → 참조 `file_upload` → 생성 설정에서 비율 · 장수 → 빈 곳을 눌러 닫기 → 설정 글자 확인 → 프롬프트 입력 → 생성 → 결과 열어 보기.
+- 요약: 워크스페이스 열기 → 참조 `file_upload` → 생성 설정에서 비율 · 장수 → "생성 설정"을 다시 눌러 닫기 → 설정 글자 확인 → 프롬프트 입력 → 생성 → 결과 열어 보기.
+- 투명 그림(게임 아이콘 · 물건)이 필요하면 프롬프트에 단색 초록(#00FF00) 배경을 넣는다. 결과는 JPG라 알파가 없다.
 - 로그인 · 계정 권한 승인은 사용자가 한다.
 
 ## 6. 기록
@@ -69,6 +70,13 @@ description: 사내 이미지 생성 플랫폼(웹)에서 게임 UI 화면 · �
 ## 8. 넣기
 
 고른 것만 내려받아 넣는다. 내려받기는 사용자 확인 뒤에 한다.
+
+받은 파일은 `~/Downloads/<epoch ms>.jpg`로 떨어진다. **다음 메시지에서**(받기와 같은 메시지에 섞지 않는다) key 폴더로 옮긴다. 투명 그림이 필요하면 초록 배경을 키잉한다(Pillow · numpy 필요).
+
+```bash
+<python> <skill_dir>/scripts/imagegen_log.py collect --key ui_radar --id 1 --n 2   # 최신 2장 → <work_dir>/imagegen/ui_radar/1_a.jpg · 1_b.jpg
+<python> <skill_dir>/scripts/key_fit.py <work_dir>/imagegen/ui_radar/1_a.jpg <work_dir>/imagegen/ui_radar/1_a.png --size 512
+```
 
 ```bash
 <python> <skill_dir>/scripts/imagegen_log.py pick --key ui_radar --id 1 --file <내려받은 파일>

@@ -208,6 +208,19 @@ picked = os.path.join(tmp, 'design', 'gen', 'ui_radar_1.png')
 check(code == 0 and os.path.exists(picked) and json.load(open(rec, encoding='utf-8'))['picked'] == ['design/gen/ui_radar_1.png']
       and len(open(os.path.join(tmp, 'web', 'imagegen', 'log.jsonl'), encoding='utf-8').read().splitlines()) == 2,
       f'imagegen pick: {out.strip()[:80]}')
+put('dl2/1761700000001.jpg', 'a')
+put('dl2/1761700000002.jpg', 'b')
+put('dl2/1761700000003.jpg', 'c')
+put('dl2/note.jpg', 'x')
+D2 = os.path.join(tmp, 'dl2')
+code, out = run(L + ['collect', '--key', 'ui_radar', '--id', '1', '--n', '2', '--downloads', D2], cwd=tmp)
+kd = os.path.join(tmp, 'web', 'imagegen', 'ui_radar')
+ok = code == 0 and os.path.exists(os.path.join(kd, '1_b.jpg'))
+check(ok and open(os.path.join(kd, '1_a.jpg')).read() == 'b' and open(os.path.join(kd, '1_b.jpg')).read() == 'c'
+      and os.path.exists(os.path.join(D2, '1761700000001.jpg')) and os.path.exists(os.path.join(D2, 'note.jpg')),
+      f'imagegen collect: 최신 2장만 옮김 {out.strip()[:80]}')
+code, out = run(L + ['collect', '--key', 'ui_radar', '--id', '2', '--n', '5', '--downloads', D2], cwd=tmp)
+check(code != 0 and not os.path.exists(os.path.join(kd, '2_a.jpg')), 'imagegen collect: 장수가 모자라면 멈춤')
 os.remove(os.path.join(tmp, '.claude', 'skill-profile.yaml'))
 code, out = run(L + ['list'], cwd=tmp)
 check(code != 0 and 'skill-profile.yaml' in out, 'imagegen: 프로필이 없으면 멈춤')

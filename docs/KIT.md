@@ -95,11 +95,14 @@ TOOLKIT.md의 산출물(템플릿 · 패키지 · 스킬 · 환경)을 **실제 
 | 플러그인 · 스킬 | 넣을 것(출처) | 상태 · 다루는 법 | 순위 |
 |---|---|---|---|
 | `assets`(web-sound-search · web-vfx-search) | 이 저장소 | 있음(0.1.1). 새 과제는 `skill-profile.yaml` · `sound_labels.json`만 채움 | 1 |
-| `editor-lease`(훅) | TotM `CLAUDE.md` "Unity CLI"(editor_status 확인 · 다른 세션 확인 규칙), `docs/PITFALLS.md` "공유 환경 · 여러 세션" | 새로 | 2 |
+| `art`(imagegen) | 이 저장소(CrazyArena 10-28 ~ 10-29) | 있음(0.1.1: 받은 파일 옮기기 `collect`, 초록 배경 키잉 `key_fit.py`). 새 과제는 `skill-profile.yaml`의 `imagegen:` 절만 채움 | 1 |
+| `editor-lease`(훅) | TotM `CLAUDE.md` "Unity CLI"(`editor status` 확인 · 다른 세션 확인 규칙. CLI beta.8부터 새 이름), `docs/PITFALLS.md` "공유 환경 · 여러 세션" | 새로 | 2 |
 | `measure`(video-measure) | TotM `.claude/skills/reference-frame-sheet/` + `references/_tools/`(git 무시, 이 PC), `docs/PITFALLS.md` "레퍼런스 영상 측정" 절. BH `.claude/skills/reference-anim-sheet/` + `references/_tools/frame_inspector.html` | 새로(HANDOFF 시작 프롬프트) | 3 |
 | `unity-webgl-mobile` 스킬 | 이 PC `~/.claude/skills/unity-webgl-mobile/`(사용자 스킬) | 옮겨 넣을 후보: webgl-mobile 패키지와 짝. 프로젝트 경로가 있으면 프로필로 | 2 |
 | report-docx | TotM `tools/report/build_report_docx.py`(+ `crop_shots.py` · `make_compare_images.py`), BH `tools/report_docx/build_report_docx.ps1` · `md2docx.pl` | 새로(두 도구 합침) | 3 |
 | draft-art | TotM `tools/art/make_draft_art.py` · `make_contact_sheet.py` · `contact_sheet.tpl.html` | 새로(나머지 `tools/art/*.py`는 TotM 그림 전용이라 참고) | 3 |
+| 글 · 시나리오 편집 페이지 | CrazyArena `tools/desc/`(아이템 · 무기 설명 편집기: 아티팩트 db → `apply_edits.py`로 에셋에 반영) · `tools/tutorial/`(튜토리얼 시나리오 편집기) | 후보(11-23). 기획자가 웹에서 글을 고치고 Claude가 SO에 넣는 흐름. 일반화하려면 SO 경로 · 필드를 프로필로 | 3 |
+| 밸런스 봇 | CrazyArena `tools/balance/`, `docs/BALANCE_BOT_*.md` | 참고(게임 규칙에 묶임). 봇으로 판을 돌려 표로 보는 방식만 옮김 | — |
 | archify | 외부 스킬(TotM `skills-lock.json`: `tt-a1i/archify`) | 복사하지 않음. 필요하면 새 과제에서 같은 출처로 설치 | — |
 
 ## D. PC 환경(저장소 밖)
@@ -120,7 +123,7 @@ TOOLKIT.md의 산출물(템플릿 · 패키지 · 스킬 · 환경)을 **실제 
 | 게임 코드 · 그림 · 섹션 · 튜닝 값 | TotM `Scripts/Runtime/Gameplay/` · `Map/` · `Data/*Tuning.cs` · `Art/` · `Data/` 등 | 게임 전용. 구조는 참고만 |
 | 리포트 결과물 | TotM `docs/reports/*.docx` · `img/` 등 | 결과물. 양식만 넘김 |
 | 빌드 · 캐시 · 생성물 | `Library/` · `Temp/` · `Builds/` · `build/` · `webgl_sharing/` · `ProfilerCaptures/` · `tools/rules/bin` · `obj` · `*.csproj` · `*.slnx` | 다시 만들어짐 |
-| Claude 메모리 | `~/.claude/projects/<프로젝트>/memory/` | 프로젝트 기록. 다음 과제에 쓸 교훈은 PITFALLS · PLAYBOOK으로 옮긴 것만 |
+| Claude 메모리 | `~/.claude/projects/<프로젝트>/memory/` | 프로젝트 기록. 다음 과제에 쓸 교훈은 PITFALLS · PLAYBOOK으로, 프로젝트와 관계없는 작업 선호는 `~/.claude/CLAUDE.md`로 옮긴 것만(11-23 CrazyArena분 옮김) |
 | 토큰 · 사내 자격 증명 | — | 이 저장소 규칙 |
 
 ## 새 과제를 시작할 때 넘길 묶음

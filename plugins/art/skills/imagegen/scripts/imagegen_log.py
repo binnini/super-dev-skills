@@ -5,6 +5,7 @@
                                                   [--count N] [--ref F ...] [--original-ref F ...] [--library L] [--note T]
   <python> <skill_dir>/scripts/imagegen_log.py list [--key K]
   <python> <skill_dir>/scripts/imagegen_log.py pick --key K --id N --file F
+  <python> <skill_dir>/scripts/imagegen_log.py collect --key K --id N --n 장수 [--downloads 폴더]
 
 기록 위치: <work_dir>/imagegen/<key>/<id>.json + <work_dir>/imagegen/log.jsonl(한 줄 = 한 기록 · 고르기)
 프로필(.claude/skill-profile.yaml)에서 읽는 값:
@@ -157,6 +158,21 @@ def cmd_pick(a, prof):
     print(f"고름 {a.key} #{a.id} → {rel(target)}")
 
 
+def cmd_collect(a, prof):
+    """사이트에서 받은 파일(Chrome 기본 폴더의 <epoch ms>.jpg)을 최신 N장 골라 <work_dir>/imagegen/<key>/<id>_a, _b …로 옮긴다.
+    파일 이름에 정보가 없으니 받은 직후 부른다. 브라우저 받기와 같은 메시지에서 돌리지 않는다(references/site.md)."""
+    dl = a.downloads or os.path.expanduser("~/Downloads")
+    fs = sorted(f for f in os.listdir(dl) if re.fullmatch(r"\d{13}\.(jpg|jpeg|png|webp)", f, re.I)) if os.path.isdir(dl) else []
+    if len(fs) < a.n:
+        sys.exit(f"{dl}에 <epoch ms> 이름 파일이 {len(fs)}개뿐이다(필요 {a.n}개).")
+    kdir = os.path.join(log_dir(prof), a.key)
+    os.makedirs(kdir, exist_ok=True)
+    for f, letter in zip(fs[-a.n:], "abcdefghijklmnopqrstuvwxyz"):
+        out = os.path.join(kdir, f"{a.id}_{letter}{os.path.splitext(f)[1].lower()}")
+        shutil.move(os.path.join(dl, f), out)
+        print(f"{f} → {rel(out)}")
+
+
 def main():
     ap = argparse.ArgumentParser(description="이미지 생성 기록 · 고르기")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -177,11 +193,16 @@ def main():
     p.add_argument("--key", required=True)
     p.add_argument("--id", type=int, required=True)
     p.add_argument("--file", required=True)
+    c = sub.add_parser("collect")
+    c.add_argument("--key", required=True)
+    c.add_argument("--id", type=int, required=True)
+    c.add_argument("--n", type=int, required=True, help="옮길 장수(최신 N장)")
+    c.add_argument("--downloads", default="", help="받은 폴더(기본 ~/Downloads)")
     a = ap.parse_args()
-    if a.cmd == "record" and not re.fullmatch(r"[A-Za-z0-9_-]+", a.key):
+    if a.cmd in ("record", "collect") and not re.fullmatch(r"[A-Za-z0-9_-]+", a.key):
         sys.exit("--key는 영문 · 숫자 · _ · -만 쓴다(폴더 이름이 된다)")
     prof = read_profile()
-    {"record": cmd_record, "list": cmd_list, "pick": cmd_pick}[a.cmd](a, prof)
+    {"record": cmd_record, "list": cmd_list, "pick": cmd_pick, "collect": cmd_collect}[a.cmd](a, prof)
 
 
 if __name__ == "__main__":
